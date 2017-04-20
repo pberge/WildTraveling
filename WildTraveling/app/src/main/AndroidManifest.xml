@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="dev.wildtraveling">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".Activity.newTripActivity"
+            android:label="@string/title_activity_new_trip"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.LogInActivity"
+            android:label="LogInActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Activity.newPersonActivity"
+            android:label="@string/title_activity_new_google_user"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.tripsListActivity"
+            android:label="@string/title_activity_trips_list"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Activity.loadingScreenActivity" />
+        <activity
+            android:name=".Activity.expenseListActivity"
+            android:label="@string/title_activity_get_expense"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.newExpenseActivitiy"
+            android:label="@string/title_activity_new_expense_activitiy"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.getExpenseActivity"
+            android:label="@string/title_activity_get_expense"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.editExpenseActivity"
+            android:label="@string/title_activity_edit_expense"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.getTripActivity"
+            android:label="@string/title_activity_trip"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+    </application>
+
+</manifest>

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "917643586407",
+    "firebase_url": "https://wildtraveling-9e8a1.firebaseio.com",
+    "project_id": "wildtraveling-9e8a1",
+    "storage_bucket": "wildtraveling-9e8a1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:917643586407:android:bdc4bd045e88b02e",
+        "android_client_info": {
+          "package_name": "dev.wildtraveling"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "917643586407-e95i2bn14h1qcl37lg46o0lpsrjkbck0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSpkWMIMjsvG-Bp620ySfPFjRikYcFBDU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
