@@ -1,5 +1,6 @@
 package dev.wildtraveling.Activity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,7 +19,9 @@ import dev.wildtraveling.R;
 import dev.wildtraveling.Service.ExpenseService;
 import dev.wildtraveling.Service.TravelerService;
 import dev.wildtraveling.Service.TripService;
+import dev.wildtraveling.Util.Repository;
 import dev.wildtraveling.Util.ServiceFactory;
+import dev.wildtraveling.Util.Util;
 
 public class LogInActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener{
 
@@ -27,16 +30,14 @@ public class LogInActivity extends AppCompatActivity implements GoogleApiClient.
     private TravelerService travelerService;
     private TripService tripService;
     private ExpenseService expenseService;
+    GoogleSignInAccount acct;
+    ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
 
-        //Initialize services
-        travelerService = ServiceFactory.getTravelerService(this);
-        tripService = ServiceFactory.getTripService(this);
-        expenseService  = ServiceFactory.getExpenseService(this);
 
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -57,6 +58,8 @@ public class LogInActivity extends AppCompatActivity implements GoogleApiClient.
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                showProgressDialog();
+                initializeService();
                 signIn();
             }
         });
@@ -85,25 +88,23 @@ public class LogInActivity extends AppCompatActivity implements GoogleApiClient.
     private void handleSignInResult(GoogleSignInResult result) {
         if (result.isSuccess()) {
             // Signed in successfully
-            GoogleSignInAccount acct = result.getSignInAccount();
+            acct = result.getSignInAccount();
             updateUI(true);
-            RegisteredTraveler traveler = travelerService.getUserByEmail(acct.getEmail());
-            if(travelerService.existingUser(acct.getEmail())){
-                travelerService.setCurrentUser(traveler.getId());
-            }else {
-                traveler = new RegisteredTraveler();
-                traveler.setName(acct.getDisplayName());
-                traveler.setEmail(acct.getEmail());
-                travelerService.save(traveler);
-                travelerService.setCurrentUser(traveler.getId());
-            }
-            //Launch activity
-            Intent intent = new Intent(this, tripsListActivity.class);
-            startActivity(intent);
-        } else {
-            // Signed out
-            updateUI(false);
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        while (Util.getLoaded() < ServiceFactory.getServiceCount()) {
+                            sleep(1000);
+                        }
+                    } catch (InterruptedException ex) {
+                        // Catching exception
+                    } finally {
+                        initApp();
 
+                    }
+                }
+            }.start();
         }
     }
 
@@ -115,6 +116,69 @@ public class LogInActivity extends AppCompatActivity implements GoogleApiClient.
         }
     }
 
+    private void initApp() {
+        RegisteredTraveler traveler = travelerService.getUserByEmail(acct.getEmail());
+        if (travelerService.existingUser(acct.getEmail())) {
+            travelerService.setCurrentUser(traveler.getId());
+        } else {
+            traveler = new RegisteredTraveler();
+            traveler.setName(acct.getDisplayName());
+            traveler.setEmail(acct.getEmail());
+            travelerService.save(traveler);
+            travelerService.setCurrentUser(traveler.getId());
+        }
+        //Launch activity
+        Intent intent = new Intent(this, tripsListActivity.class);
+        startActivity(intent);
+        LogInActivity.this.finish();
+    }
 
 
+
+    private void initializeService() {
+        this.tripService = ServiceFactory.getTripService(LogInActivity.this);
+        this.expenseService = ServiceFactory.getExpenseService(LogInActivity.this);
+        this.travelerService = ServiceFactory.getTravelerService(LogInActivity.this);
+
+        ServiceFactory.getTravelerService(this).setOnChangedListener(new Repository.OnChangedListener() {
+            @Override
+            public void onChanged(EventType type) {
+                increaseLoaded(type);
+            }
+        });
+        ServiceFactory.getExpenseService(this).setOnChangedListener(new Repository.OnChangedListener() {
+            @Override
+            public void onChanged(Repository.OnChangedListener.EventType type) {
+                increaseLoaded(type);
+            }
+        });
+        ServiceFactory.getTripService(this).setOnChangedListener(new Repository.OnChangedListener() {
+            @Override
+            public void onChanged(Repository.OnChangedListener.EventType type) {
+                increaseLoaded(type);
+            }
+        });
+    }
+
+    private void increaseLoaded(Repository.OnChangedListener.EventType type) {
+        if (type.equals(Repository.OnChangedListener.EventType.Full)) {
+            Util.increaseLoaded();
+        }
+    }
+
+    private void showProgressDialog() {
+            if (mProgressDialog == null) {
+                mProgressDialog = new ProgressDialog(this);
+                mProgressDialog.setMessage("Loading");
+                mProgressDialog.setIndeterminate(true);
+            }
+
+            mProgressDialog.show();
+    }
+
+    private void hideProgressDialog() {
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.hide();
+        }
+    }
 }

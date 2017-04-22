@@ -21,6 +21,8 @@ public final class ServiceFactory {
     private static TravelerService travelerService;
     private static ExpenseService expenseService;
 
+    private static Integer numServices = 3;
+
     public static TripService getTripService(Context context){
         if (tripService == null)
             tripService = new TripService(
@@ -40,6 +42,10 @@ public final class ServiceFactory {
             expenseService = new ExpenseService(
                     new ExpenseRepository(context), new DebtRepository(context));
         return expenseService;
+    }
+
+    public static Integer getServiceCount() {
+        return numServices;
     }
 
 }

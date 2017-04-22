@@ -1,5 +1,7 @@
 package dev.wildtraveling.Service;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+
 import java.util.List;
 
 import dev.wildtraveling.Domain.Person;
@@ -113,4 +115,5 @@ public class TravelerService extends Service<RegisteredTraveler> {
         }
         return false;
     }
+
 }

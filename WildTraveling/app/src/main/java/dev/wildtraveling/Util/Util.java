@@ -8,6 +8,8 @@ import java.util.Date;
  */
 public final class Util {
 
+    private static Integer loaded = 0;
+
     public static String obtainDateString(Date date) {
         String result = "";
         Calendar calendar = Calendar.getInstance();
@@ -22,4 +24,8 @@ public final class Util {
 
         return result;
     }
+
+    public static Integer getLoaded() { return loaded; }
+
+    public static void increaseLoaded() { ++loaded; }
 }
