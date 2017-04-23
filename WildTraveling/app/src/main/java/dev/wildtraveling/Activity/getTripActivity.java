@@ -155,6 +155,13 @@ public class getTripActivity extends AppCompatActivity
     private void initializeExpenses() {
         currentFragment = 1;
         fab.setVisibility(View.VISIBLE);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent1 = new Intent(getApplicationContext(),newExpenseActivitiy.class);
+                startActivity(intent1);
+            }
+        });
         setTitle("Expenses");
         total = (TextView) findViewById(R.id.getExpenseTotalAmount);
         total.setText(expenseService.getTotalAmountByTrip(trip.getId()).toString());
