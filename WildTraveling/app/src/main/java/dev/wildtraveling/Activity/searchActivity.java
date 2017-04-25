@@ -58,6 +58,7 @@ public class searchActivity extends AppCompatActivity implements OnMapReadyCallb
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
         goToLocationZoom(41.758061, 0.902953, 15);
     }
 

@@ -140,6 +140,7 @@ public class LogInActivity extends AppCompatActivity implements GoogleApiClient.
         this.expenseService = ServiceFactory.getExpenseService(LogInActivity.this);
         this.travelerService = ServiceFactory.getTravelerService(LogInActivity.this);
 
+
         ServiceFactory.getTravelerService(this).setOnChangedListener(new Repository.OnChangedListener() {
             @Override
             public void onChanged(EventType type) {

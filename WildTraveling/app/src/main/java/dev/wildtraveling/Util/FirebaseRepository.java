@@ -31,11 +31,9 @@ public abstract class FirebaseRepository<T extends Entity> extends Repository<T>
      * Constructor class
      */
     public FirebaseRepository(Context context) {
-        //Firebase.setAndroidContext(context);
         firebase = FirebaseDatabase.getInstance(FIREBASE_URI);
         map = new LinkedHashMap<>();
         database = firebase.getReference().child(getObjectReference());
-        //firebase.orderByKey().addChildEventListener(this);
 
         database.addValueEventListener(new ValueEventListener() { //realtime database
             @Override

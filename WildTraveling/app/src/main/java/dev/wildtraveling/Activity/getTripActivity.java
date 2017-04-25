@@ -19,6 +19,8 @@ import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +30,9 @@ import dev.wildtraveling.Domain.Person;
 import dev.wildtraveling.Domain.Trip;
 import dev.wildtraveling.R;
 import dev.wildtraveling.Service.ExpenseService;
+import dev.wildtraveling.Service.FourSquareAPIImpl;
+import dev.wildtraveling.Service.FoursquareAPI;
+import dev.wildtraveling.Service.FoursquareVenue;
 import dev.wildtraveling.Service.TravelerService;
 import dev.wildtraveling.Service.TripService;
 import dev.wildtraveling.Util.RecyclerItemClickListener;
@@ -36,6 +41,7 @@ import dev.wildtraveling.Util.Util;
 import dev.wildtraveling.View.DestinationRecyclerView;
 import dev.wildtraveling.View.ExpensesRecyclerView;
 import dev.wildtraveling.View.ParticipantsRecyclerView;
+import dev.wildtraveling.View.SearchResultRecyclerView;
 
 public class getTripActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -56,6 +62,10 @@ public class getTripActivity extends AppCompatActivity
     private NavigationView navigationView;
     private Integer currentFragment;
 
+    private FourSquareAPIImpl foursquareAPI;
+    private View searchResultRecyclerView;
+    private List<FoursquareVenue> venues;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,11 +76,14 @@ public class getTripActivity extends AppCompatActivity
         tripService = ServiceFactory.getTripService(getApplicationContext());
         travelerService = ServiceFactory.getTravelerService(getApplicationContext());
         expenseService = ServiceFactory.getExpenseService(getApplicationContext());
+        foursquareAPI = ServiceFactory.getFoursquareAPI();
+
         trip = tripService.get(tripService.getCurrentTrip());
+
 
         intent = getIntent();
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fabNav);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -145,23 +158,65 @@ public class getTripActivity extends AppCompatActivity
             initFragment(R.layout.content_list_expense);
             initializeExpenses();
         } else if (id == R.id.search) {
-
+            initFragment(R.layout.venues_list_fragment_layout);
+            initializeSearch();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
+    private void initializeSearch() {
+        currentFragment = 2;
+        fab.setVisibility(View.INVISIBLE);
+        setTitle("Search");
+
+        searchResultRecyclerView = findViewById(R.id.search_list_recyclerView);
+
+        //onSearch
+
+        //explore method
+        venues = foursquareAPI.generateVenuesFromCity(40.7463956,-73.9852992);
+
+       /* new Thread() {
+            @Override
+            public void run() {
+                try {
+                    while (foursquareAPI.getStatus()) {
+                        sleep(1000);
+                    }
+                } catch (InterruptedException ex) {
+                    // Catching exception
+                } finally {
+                    initSearchResultActivity();
+                }
+            }
+        }.start();*/
+
+        initSearchResultActivity();
+
+
+
+    }
+
+    private void initSearchResultActivity() {
+        System.out.println("Mida llista venues: "+venues.size()+"    "+foursquareAPI.getCurrentVenues().size());
+        if(venues.size()>0) {
+            System.out.println("primer nom: " + venues.get(0).getName());
+        }
+        SearchResultRecyclerView recyclerView = new SearchResultRecyclerView(getApplicationContext(),venues);
+        ((RecyclerView) searchResultRecyclerView).setLayoutManager(new LinearLayoutManager(this));
+        ((RecyclerView) searchResultRecyclerView).setAdapter(recyclerView);
+        recyclerView.notifyDataSetChanged();
+    }
+
+    public LatLng getLocationFromAddress(String strAddress) {
+        return Util.getLocationFromAddress(strAddress, getApplicationContext());
+    }
+
     private void initializeExpenses() {
         currentFragment = 1;
         fab.setVisibility(View.VISIBLE);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent1 = new Intent(getApplicationContext(),newExpenseActivitiy.class);
-                startActivity(intent1);
-            }
-        });
         setTitle("Expenses");
         total = (TextView) findViewById(R.id.getExpenseTotalAmount);
         total.setText(expenseService.getTotalAmountByTrip(trip.getId()).toString());
@@ -191,7 +246,7 @@ public class getTripActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), newTripActivity.class);
+                Intent intent = new Intent(getApplicationContext(), newExpenseActivitiy.class);
                 startActivity(intent);
             }
         });
@@ -243,4 +298,6 @@ public class getTripActivity extends AppCompatActivity
         frameLayout.removeAllViews();
         frameLayout.addView(v);
     }
+
+
 }
