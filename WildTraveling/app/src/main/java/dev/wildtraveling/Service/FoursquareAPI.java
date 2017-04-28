@@ -1,5 +1,7 @@
 package dev.wildtraveling.Service;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.List;
 
 /**
@@ -10,5 +12,7 @@ public interface FoursquareAPI {
     List<FoursquareVenue> generateVenuesFromCity(double latitude, double longitude);
 
     List<FoursquareVenue> getCurrentVenues();
+
+    List<FoursquareVenue> getVenuesCategory(LatLng coord, String category);
 
 }

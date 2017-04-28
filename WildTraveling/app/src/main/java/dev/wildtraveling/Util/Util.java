@@ -7,9 +7,12 @@ import android.location.Geocoder;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import dev.wildtraveling.Service.FoursquareVenue;
 
 /**
  * Created by pere on 4/12/17.
@@ -17,6 +20,7 @@ import java.util.List;
 public final class Util {
 
     private static Integer loaded = 0;
+    private static List<FoursquareVenue> venues = new ArrayList<>();
 
     public static String obtainDateString(Date date) {
         String result = "";
@@ -58,4 +62,11 @@ public final class Util {
         return coordinates;
     }
 
+    public static List<FoursquareVenue> getVenues() {
+        return venues;
+    }
+
+    public static void setVenues(List<FoursquareVenue> venues) {
+        Util.venues = venues;
+    }
 }

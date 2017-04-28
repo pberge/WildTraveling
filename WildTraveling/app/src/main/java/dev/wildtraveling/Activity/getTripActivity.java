@@ -1,6 +1,8 @@
 package dev.wildtraveling.Activity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -17,6 +19,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -64,7 +67,8 @@ public class getTripActivity extends AppCompatActivity
 
     private FourSquareAPIImpl foursquareAPI;
     private View searchResultRecyclerView;
-    private List<FoursquareVenue> venues;
+    private List<FoursquareVenue> venues = new ArrayList<>();
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +108,11 @@ public class getTripActivity extends AppCompatActivity
             navigationView.getMenu().getItem(1).setChecked(true);
             initFragment(R.layout.content_list_expense);
             initializeExpenses();
+        }
+        else if(intent.getStringExtra("FRAGMENT").equals("SEARCH")){
+            navigationView.getMenu().getItem(2).setChecked(true);
+            initFragment(R.layout.new_search_layout);
+            initializeSearch();
         }
     }
 
@@ -158,7 +167,7 @@ public class getTripActivity extends AppCompatActivity
             initFragment(R.layout.content_list_expense);
             initializeExpenses();
         } else if (id == R.id.search) {
-            initFragment(R.layout.venues_list_fragment_layout);
+            initFragment(R.layout.new_search_layout);
             initializeSearch();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -171,43 +180,85 @@ public class getTripActivity extends AppCompatActivity
         fab.setVisibility(View.INVISIBLE);
         setTitle("Search");
 
-        searchResultRecyclerView = findViewById(R.id.search_list_recyclerView);
+        progressDialog = new ProgressDialog(getApplicationContext());
+        progressDialog.setMessage("Loading...");
 
-        //onSearch
+        Util.setVenues(new ArrayList<FoursquareVenue>());
 
-        //explore method
-        venues = foursquareAPI.generateVenuesFromCity(40.7463956,-73.9852992);
+        ImageButton food = (ImageButton) findViewById(R.id.foodSearchButton);
+        ImageButton arts = (ImageButton) findViewById(R.id.artsSearchButton);
 
-       /* new Thread() {
+        food.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-                try {
-                    while (foursquareAPI.getStatus()) {
-                        sleep(1000);
+            public void onClick(View v) {
+                foursquareAPI.setContext(getApplicationContext());
+                LatLng coord = Util.getLocationFromAddress("Barcelona", getApplicationContext());
+                LatLng c = new LatLng(41.4081724, 2.1556375);
+                venues = foursquareAPI.getVenuesCategory(coord, "food");
+                new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            //showProgressDialog();
+                            while (venues.size() == 0) {
+                                sleep(1000);
+                            }
+                        } catch (InterruptedException ex) {
+                            // Catching exception
+                        } finally {
+                            Util.setVenues(venues);
+                            activitySearch();
+                        }
                     }
-                } catch (InterruptedException ex) {
-                    // Catching exception
-                } finally {
-                    initSearchResultActivity();
-                }
+                }.start();
             }
-        }.start();*/
+        });
 
-        initSearchResultActivity();
-
-
-
+        arts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                foursquareAPI.setContext(getApplicationContext());
+                LatLng coord = Util.getLocationFromAddress("Barcelona", getApplicationContext());
+                venues = foursquareAPI.getVenuesCategory(coord, "arts");
+                new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            while (venues.size() == 0) {
+                                sleep(1000);
+                            }
+                        } catch (InterruptedException ex) {
+                            // Catching exception
+                        } finally {
+                            Util.setVenues(venues);
+                            activitySearch();
+                        }
+                    }
+                }.start();
+            }
+        });
     }
 
+    private void showProgressDialog() {
+        progressDialog.show();
+    }
+
+    private void dismissProgressDialog(){
+        progressDialog.dismiss();
+    }
+
+    private void activitySearch() {
+        Intent intent = new Intent(getApplicationContext(), searchResultActivity.class);
+        startActivity(intent);
+    }
+
+
     private void initSearchResultActivity() {
-        System.out.println("Mida llista venues: "+venues.size()+"    "+foursquareAPI.getCurrentVenues().size());
-        if(venues.size()>0) {
-            System.out.println("primer nom: " + venues.get(0).getName());
-        }
         SearchResultRecyclerView recyclerView = new SearchResultRecyclerView(getApplicationContext(),venues);
         ((RecyclerView) searchResultRecyclerView).setLayoutManager(new LinearLayoutManager(this));
         ((RecyclerView) searchResultRecyclerView).setAdapter(recyclerView);
         recyclerView.notifyDataSetChanged();
+
     }
 
     public LatLng getLocationFromAddress(String strAddress) {

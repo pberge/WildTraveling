@@ -6,10 +6,18 @@ package dev.wildtraveling.Service;
 public class FoursquareVenue {
 
     private String name;
-    private String city;
+    private String location;
     private String category;
+    private Double priceRank;
     private Double longitute;
     private Double latitude;
+    private String iconURL;
+
+    public FoursquareVenue() {
+        this.name = "";
+        this.location = "";
+        this.setCategory("");
+    }
 
     public Double getLongitute() {
         return longitute;
@@ -27,22 +35,16 @@ public class FoursquareVenue {
         this.latitude = latitude;
     }
 
-    public FoursquareVenue() {
-        this.name = "";
-        this.city = "";
-        this.setCategory("");
-    }
-
-    public String getCity() {
-        if (city.length() > 0) {
-            return city;
+    public String getLocation() {
+        if (location.length() > 0) {
+            return location;
         }
-        return city;
+        return location;
     }
 
-    public void setCity(String city) {
-        if (city != null) {
-            this.city = city.replaceAll("\\(", "").replaceAll("\\)", "");
+    public void setLocation(String location) {
+        if (location != null) {
+            this.location = location.replaceAll("\\(", "").replaceAll("\\)", "");
         }
     }
 
@@ -62,4 +64,19 @@ public class FoursquareVenue {
         this.category = category;
     }
 
+    public Double getPriceRank() {
+        return priceRank;
+    }
+
+    public void setPriceRank(Double priceRank) {
+        this.priceRank = priceRank;
+    }
+
+    public String getIconURL() {
+        return iconURL;
+    }
+
+    public void setIconURL(String iconURL) {
+        this.iconURL = iconURL;
+    }
 }
