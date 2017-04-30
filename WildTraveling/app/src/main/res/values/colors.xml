@@ -10,10 +10,8 @@
     <color name="textSecundary">#757575</color>
     <color name="red">#c8ae4141</color>
     <color name="green">#ce4c993f</color>
-
-
     <color name="white">#ffffff</color>
-    <color name="principal">#2196f3</color>
+    <color name="backgroundList">#b3b3b3</color>
     <color name="principalFosc">#0d47a1</color>
     <color name="secundary">#ff6d00</color>
 

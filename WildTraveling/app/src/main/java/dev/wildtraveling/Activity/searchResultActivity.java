@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import dev.wildtraveling.R;
@@ -26,7 +27,10 @@ public class searchResultActivity extends AppCompatActivity {
 
         searchResultRecyclerView = findViewById(R.id.searchResultRecyclerView);
 
-        venues = Util.getVenues();
+        //venues = Util.getVenues();
+
+        int a = 1;
+        venues = Util.sortVenues(a);
 
         SearchResultRecyclerView recyclerView = new SearchResultRecyclerView(getApplicationContext(),venues);
         ((RecyclerView) searchResultRecyclerView).setLayoutManager(new LinearLayoutManager(this));
@@ -38,6 +42,7 @@ public class searchResultActivity extends AppCompatActivity {
     public void onBackPressed() {
         Intent intent = new Intent(getApplicationContext(),getTripActivity.class);
         intent.putExtra("FRAGMENT","SEARCH");
+        Util.setVenues(new ArrayList<FoursquareVenue>());
         startActivity(intent);
     }
 }

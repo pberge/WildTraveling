@@ -1,11 +1,21 @@
 package dev.wildtraveling.Activity;
 
+import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationManager;
 import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,10 +28,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -38,6 +52,7 @@ import dev.wildtraveling.Service.FoursquareAPI;
 import dev.wildtraveling.Service.FoursquareVenue;
 import dev.wildtraveling.Service.TravelerService;
 import dev.wildtraveling.Service.TripService;
+import dev.wildtraveling.Util.MyLocListener;
 import dev.wildtraveling.Util.RecyclerItemClickListener;
 import dev.wildtraveling.Util.ServiceFactory;
 import dev.wildtraveling.Util.Util;
@@ -64,11 +79,17 @@ public class getTripActivity extends AppCompatActivity
     private Intent intent;
     private NavigationView navigationView;
     private Integer currentFragment;
+    private EditText searchLocation;
+    private EditText searchQuery;
 
     private FourSquareAPIImpl foursquareAPI;
     private View searchResultRecyclerView;
     private List<FoursquareVenue> venues = new ArrayList<>();
     private ProgressDialog progressDialog;
+    private LocationManager locationManager;
+    private MyLocListener locListener;
+
+    private String currentSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,13 +98,15 @@ public class getTripActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        locListener = new MyLocListener();
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
         tripService = ServiceFactory.getTripService(getApplicationContext());
         travelerService = ServiceFactory.getTravelerService(getApplicationContext());
         expenseService = ServiceFactory.getExpenseService(getApplicationContext());
         foursquareAPI = ServiceFactory.getFoursquareAPI();
 
         trip = tripService.get(tripService.getCurrentTrip());
-
 
         intent = getIntent();
 
@@ -99,21 +122,22 @@ public class getTripActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        if(intent.getStringExtra("FRAGMENT").equals("INFO")) {
+        if (intent.getStringExtra("FRAGMENT").equals("INFO")) {
             navigationView.getMenu().getItem(0).setChecked(true);
             initFragment(R.layout.content_get_trip);
             initializeGeneralInfo();
-        }
-        else if(intent.getStringExtra("FRAGMENT").equals("EXPENSE")){
+        } else if (intent.getStringExtra("FRAGMENT").equals("EXPENSE")) {
             navigationView.getMenu().getItem(1).setChecked(true);
             initFragment(R.layout.content_list_expense);
             initializeExpenses();
-        }
-        else if(intent.getStringExtra("FRAGMENT").equals("SEARCH")){
+        } else if (intent.getStringExtra("FRAGMENT").equals("SEARCH")) {
             navigationView.getMenu().getItem(2).setChecked(true);
             initFragment(R.layout.new_search_layout);
             initializeSearch();
         }
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
@@ -121,11 +145,11 @@ public class getTripActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if(currentFragment == 0) {
+        } else if (currentFragment == 0) {
             Intent getTrip = new Intent(this, tripsListActivity.class);
             tripService.setCurrentTrip("");
             startActivity(getTrip);
-        } else{
+        } else {
             navigationView.getMenu().getItem(0).setChecked(true);
             initFragment(R.layout.content_get_trip);
             initializeGeneralInfo();
@@ -180,85 +204,134 @@ public class getTripActivity extends AppCompatActivity
         fab.setVisibility(View.INVISIBLE);
         setTitle("Search");
 
+        final String query = "";
+
         progressDialog = new ProgressDialog(getApplicationContext());
         progressDialog.setMessage("Loading...");
 
         Util.setVenues(new ArrayList<FoursquareVenue>());
 
+        searchLocation = (EditText) findViewById(R.id.searchLocation);
+        searchQuery = (EditText) findViewById(R.id.searchQuery);
+        //Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Location location = new Location("");
+        location.setLatitude(41.7585872);
+        location.setLongitude(0.8934583);
+        locListener.onLocationChanged(location);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locListener);
+
+        Button exploreButton = (Button) findViewById(R.id.exploreButton);
         ImageButton food = (ImageButton) findViewById(R.id.foodSearchButton);
         ImageButton arts = (ImageButton) findViewById(R.id.artsSearchButton);
+        ImageButton drinks = (ImageButton) findViewById(R.id.drinksSearchButton);
+        ImageButton shops = (ImageButton) findViewById(R.id.shopsSearchButton);
+        ImageButton outdoors = (ImageButton) findViewById(R.id.outdoorsSearchButton);
 
         food.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                foursquareAPI.setContext(getApplicationContext());
-                LatLng coord = Util.getLocationFromAddress("Barcelona", getApplicationContext());
-                LatLng c = new LatLng(41.4081724, 2.1556375);
-                venues = foursquareAPI.getVenuesCategory(coord, "food");
-                new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            //showProgressDialog();
-                            while (venues.size() == 0) {
-                                sleep(1000);
-                            }
-                        } catch (InterruptedException ex) {
-                            // Catching exception
-                        } finally {
-                            Util.setVenues(venues);
-                            activitySearch();
-                        }
-                    }
-                }.start();
+                currentSearch = "food";
+                searchQuery.setText(currentSearch);
             }
         });
 
         arts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                foursquareAPI.setContext(getApplicationContext());
-                LatLng coord = Util.getLocationFromAddress("Barcelona", getApplicationContext());
-                venues = foursquareAPI.getVenuesCategory(coord, "arts");
-                new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            while (venues.size() == 0) {
-                                sleep(1000);
-                            }
-                        } catch (InterruptedException ex) {
-                            // Catching exception
-                        } finally {
-                            Util.setVenues(venues);
-                            activitySearch();
-                        }
-                    }
-                }.start();
+                currentSearch = "arts";
+                searchQuery.setText(currentSearch);
             }
         });
-    }
 
-    private void showProgressDialog() {
-        progressDialog.show();
-    }
+        drinks.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                currentSearch = "drinks";
+                searchQuery.setText(currentSearch);
+            }
+        });
 
-    private void dismissProgressDialog(){
-        progressDialog.dismiss();
+        shops.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                currentSearch = "shops";
+                searchQuery.setText(currentSearch);
+            }
+        });
+
+        outdoors.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                currentSearch = "outdoors";
+                searchQuery.setText(currentSearch);
+            }
+        });
+
+        exploreButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (searchLocation.getText().toString().equals("")) {
+                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locListener);
+                    LatLng coord = Util.getCurrentLocation();
+                    if (searchQuery.getText().toString().equals("")) {
+                    } else {
+                        venues = foursquareAPI.getVenuesCategory(coord, searchQuery.getText().toString());
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    System.out.println("ESPEREM A QUE venues tingui algo");
+                                    while (venues.size() == 0) {
+                                        Thread.sleep(1000);
+                                    }
+                                } catch (InterruptedException ex) {
+                                    // Catching exception
+                                } finally {
+                                    System.out.println("Venues té algo");
+                                    Util.setVenues(venues);
+                                    activitySearch();
+                                }
+                            }
+                        }).start();
+                    }
+
+                } else {
+                    LatLng coord = Util.getLocationFromAddress(searchLocation.getText().toString(), getApplicationContext());
+                    if (searchQuery.getText().toString().equals("")) {
+                    } else {
+                        venues = foursquareAPI.getVenuesCategory(coord, searchQuery.getText().toString());
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    System.out.println("ESPEREM A QUE venues tingui algo");
+                                    while (venues.size() == 0) {
+                                        Thread.sleep(1000);
+                                    }
+                                } catch (InterruptedException ex) {
+                                    // Catching exception
+                                } finally {
+                                    System.out.println("Venues té algo");
+                                    Util.setVenues(venues);
+                                    activitySearch();
+                                }
+                            }
+                        }).start();
+                    }
+                }
+            }
+        });
     }
 
     private void activitySearch() {
         Intent intent = new Intent(getApplicationContext(), searchResultActivity.class);
         startActivity(intent);
-    }
-
-
-    private void initSearchResultActivity() {
-        SearchResultRecyclerView recyclerView = new SearchResultRecyclerView(getApplicationContext(),venues);
-        ((RecyclerView) searchResultRecyclerView).setLayoutManager(new LinearLayoutManager(this));
-        ((RecyclerView) searchResultRecyclerView).setAdapter(recyclerView);
-        recyclerView.notifyDataSetChanged();
-
     }
 
     public LatLng getLocationFromAddress(String strAddress) {
@@ -277,7 +350,7 @@ public class getTripActivity extends AppCompatActivity
 
         final List<Expense> expenses = expenseService.getExpenseByTripId(tripService.getCurrentTrip());
 
-        ExpensesRecyclerView recyclerView = new ExpensesRecyclerView(getApplicationContext(),expenses);
+        ExpensesRecyclerView recyclerView = new ExpensesRecyclerView(getApplicationContext(), expenses);
         ((RecyclerView) expenseRecyclerView).setAdapter(recyclerView);
         recyclerView.notifyDataSetChanged();
         ((RecyclerView) expenseRecyclerView).addOnItemTouchListener(new RecyclerItemClickListener(this, (RecyclerView) expenseRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
@@ -320,22 +393,22 @@ public class getTripActivity extends AppCompatActivity
 
         destinationRecyclerView = findViewById(R.id.getTripDestinationRV);
         ((RecyclerView) destinationRecyclerView).setLayoutManager(new LinearLayoutManager(this));
-        DestinationRecyclerView recyclerView = new DestinationRecyclerView(getApplicationContext(),destinations);
+        DestinationRecyclerView recyclerView = new DestinationRecyclerView(getApplicationContext(), destinations);
         recyclerView.notifyDataSetChanged();
         ((RecyclerView) destinationRecyclerView).setAdapter(recyclerView);
 
         List<Person> travelers = new ArrayList<>();
-        for(String id: trip.getParticipants()){
-            if(id.equals(travelerService.getCurrentUser())){
+        for (String id : trip.getParticipants()) {
+            if (id.equals(travelerService.getCurrentUser())) {
                 travelers.add(travelerService.getUserById(id));
-            }else {
+            } else {
                 travelers.add(travelerService.getTravelerById(id));
             }
         }
 
         participantsRecyclerView = findViewById(R.id.getTripParticipantsRV);
         ((RecyclerView) participantsRecyclerView).setLayoutManager(new LinearLayoutManager(this));
-        ParticipantsRecyclerView part = new ParticipantsRecyclerView(getApplicationContext(),travelers);
+        ParticipantsRecyclerView part = new ParticipantsRecyclerView(getApplicationContext(), travelers);
         part.notifyDataSetChanged();
         ((RecyclerView) participantsRecyclerView).setAdapter(part);
     }

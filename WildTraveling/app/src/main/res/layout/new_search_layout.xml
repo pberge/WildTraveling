@@ -8,21 +8,34 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="What are you looking for?"
+        android:textSize="24dp"
         android:gravity="center"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center">
+        android:gravity="center"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/plus"
+            android:src="@drawable/food"
             android:id="@+id/foodSearchButton"
             android:tint="@color/colorAccent"
             android:background="@android:color/transparent"/>
         <Space
-            android:layout_width="50dp"
+            android:layout_width="20dp"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/drinks"
+            android:id="@+id/drinksSearchButton"
+            android:tint="@color/colorAccent"
+            android:background="@android:color/transparent"/>
+        <Space
+            android:layout_width="20dp"
             android:layout_height="wrap_content" />
         <ImageButton
             android:layout_width="wrap_content"
@@ -31,5 +44,82 @@
             android:id="@+id/artsSearchButton"
             android:tint="@color/colorAccent"
             android:background="@android:color/transparent"/>
+
+        <Space
+            android:layout_width="20dp"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/shop"
+            android:id="@+id/shopsSearchButton"
+            android:tint="@color/colorAccent"
+            android:background="@android:color/transparent"/>
+        <Space
+            android:layout_width="20dp"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/nature"
+            android:id="@+id/outdoorsSearchButton"
+            android:tint="@color/colorAccent"
+            android:background="@android:color/transparent"/>
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/search"
+            android:tint="@color/colorAccent"/>
+        <EditText
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:hint="Museum"
+            android:id="@+id/searchQuery"/>
+
+    </LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:text="Where?"
+        android:textSize="24dp"
+        android:gravity="center"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/map_marker"
+            android:tint="@color/colorAccent"/>
+        <EditText
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:hint="My Location"
+            android:id="@+id/searchLocation"/>
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="@dimen/activity_vertical_margin">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Explore"
+            android:id="@+id/exploreButton"
+            android:textColor="@color/textSecundary"
+            android:backgroundTint="@color/colorAccent"/>
+    </RelativeLayout>
 </LinearLayout>

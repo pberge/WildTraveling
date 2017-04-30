@@ -76,6 +76,10 @@ public class FourSquareAPIImpl implements FoursquareAPI {
         return false;
     }
 
+    public List<FoursquareVenue> getVenuesFromQuery(LatLng coord, String museum) {
+        return null;
+    }
+
     private class FoursquareCall extends AsyncTask<View, Void, String> {
 
         ProgressDialog progressDialog;
@@ -84,12 +88,6 @@ public class FourSquareAPIImpl implements FoursquareAPI {
         protected String doInBackground(View... urls) {
             // make Call to the url
             if(!currentSearch.equals("no")) {
-                System.out.println("Entra a cerca per categoria");
-                /*temp = makeCall("https://api.foursquare.com/v2/venues/explore?"+
-                        "&client_id=" + CLIENT_ID +
-                        "&client_secret=" + CLIENT_SECRET +
-                        "&ll=" + latitude + "," + longitude+
-                        "&v="+v);*/
                 temp = makeCall("https://api.foursquare.com/v2/venues/explore?"+
                         "&client_id=" + CLIENT_ID +
                         "&client_secret=" + CLIENT_SECRET +
@@ -109,7 +107,6 @@ public class FourSquareAPIImpl implements FoursquareAPI {
         @Override
         protected void onPreExecute() {
             // we can start a progress bar here
-
         }
 
         @Override
@@ -198,6 +195,8 @@ public class FourSquareAPIImpl implements FoursquareAPI {
                                     }
                                     if (jsonArray.getJSONObject(i).getJSONObject("venue").has("price")) {
                                         poi.setPriceRank(jsonArray.getJSONObject(i).getJSONObject("venue").getJSONObject("price").getDouble("tier"));
+                                    } else{
+                                        poi.setPriceRank(0.0);
                                     }
                                     temp.add(poi);
                                 }

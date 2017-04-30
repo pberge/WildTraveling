@@ -21,6 +21,7 @@ public final class Util {
 
     private static Integer loaded = 0;
     private static List<FoursquareVenue> venues = new ArrayList<>();
+    private static LatLng currentLocation;
 
     public static String obtainDateString(Date date) {
         String result = "";
@@ -68,5 +69,44 @@ public final class Util {
 
     public static void setVenues(List<FoursquareVenue> venues) {
         Util.venues = venues;
+    }
+
+    public static LatLng getCurrentLocation() {
+        return currentLocation;
+    }
+
+    public static void setCurrentLocation(LatLng currentLocation) {
+        Util.currentLocation = currentLocation;
+    }
+
+    public static List<FoursquareVenue> sortVenues(int key) {
+        List<FoursquareVenue> a = new ArrayList<>();
+        List<FoursquareVenue> b = new ArrayList<>();
+        List<FoursquareVenue> c = new ArrayList<>();
+        List<FoursquareVenue> d = new ArrayList<>();
+        List<FoursquareVenue> nulls = new ArrayList<>();
+
+        for(FoursquareVenue v : venues){
+            if(v.getPriceRank()==1){
+                a.add(v);
+            } else if(v.getPriceRank()==2){
+                b.add(v);
+            } else if(v.getPriceRank()==3){
+                c.add(v);
+            } else if(v.getPriceRank()==4){
+                d.add(v);
+            } else if(v.getPriceRank()==0){
+                nulls.add(v);
+            }
+        }
+
+        List<FoursquareVenue> res = new ArrayList<>();
+        res.addAll(a);
+        res.addAll(b);
+        res.addAll(c);
+        res.addAll(d);
+        res.addAll(nulls);
+
+        return res;
     }
 }

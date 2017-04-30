@@ -41,8 +41,8 @@ public class SearchResultRecyclerView extends RecyclerView.Adapter<SearchResultR
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.name.setText(mValues.get(position).getName());
-        System.out.println("Entra dins el: " + mValues.get(position).getName());
-
+        holder.adress.setText(mValues.get(position).getLocation());
+        holder.price.setText(""+mValues.get(position).getPriceRank());
     }
 
     @Override
@@ -52,10 +52,14 @@ public class SearchResultRecyclerView extends RecyclerView.Adapter<SearchResultR
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView name;
+        public TextView adress;
+        public TextView price;
 
         public ViewHolder(View view) {
             super(view);
             name = (TextView) view.findViewById(R.id.searchResult_name);
+            adress = (TextView) view.findViewById(R.id.searchResult_address);
+            price = (TextView) view.findViewById(R.id.searchResult_price);
         }
 
         @Override
