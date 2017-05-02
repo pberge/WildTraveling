@@ -5,15 +5,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.List;
 
-import dev.wildtraveling.Domain.Expense;
 import dev.wildtraveling.R;
 import dev.wildtraveling.Service.FoursquareVenue;
-import dev.wildtraveling.Util.Util;
 
 /**
  * Created by pere on 4/25/17.

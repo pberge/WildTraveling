@@ -206,10 +206,11 @@ public class getTripActivity extends AppCompatActivity
 
         final String query = "";
 
-        progressDialog = new ProgressDialog(getApplicationContext());
+        progressDialog = new ProgressDialog(getTripActivity.this);
         progressDialog.setMessage("Loading...");
 
-        Util.setVenues(new ArrayList<FoursquareVenue>());
+        Util.setNewVenues();
+        venues = Util.getVenues();
 
         searchLocation = (EditText) findViewById(R.id.searchLocation);
         searchQuery = (EditText) findViewById(R.id.searchQuery);
@@ -273,56 +274,66 @@ public class getTripActivity extends AppCompatActivity
         exploreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                progressDialog.show();
                 if (searchLocation.getText().toString().equals("")) {
                     if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        progressDialog.dismiss();
                         return;
                     }
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locListener);
                     LatLng coord = Util.getCurrentLocation();
                     if (searchQuery.getText().toString().equals("")) {
                     } else {
-                        venues = foursquareAPI.getVenuesCategory(coord, searchQuery.getText().toString());
-                        new Thread(new Runnable() {
+                        foursquareAPI.getVenuesCategory(coord, searchQuery.getText().toString());
+                        new Thread() {
                             @Override
                             public void run() {
                                 try {
                                     System.out.println("ESPEREM A QUE venues tingui algo");
-                                    while (venues.size() == 0) {
+                                    venues = new ArrayList<>();
+                                    Util.setNewVenues();
+                                    System.out.println("mida venues abans bucle: " + venues.size());
+                                    while (Util.getVenues().size() == 0) {
+                                        System.out.println("bucle: " + Util.getVenues().size());
                                         Thread.sleep(1000);
+                                        venues = Util.getVenues();
                                     }
                                 } catch (InterruptedException ex) {
                                     // Catching exception
                                 } finally {
                                     System.out.println("Venues té algo");
-                                    Util.setVenues(venues);
                                     activitySearch();
                                 }
                             }
-                        }).start();
+                        }.start();
                     }
 
                 } else {
                     LatLng coord = Util.getLocationFromAddress(searchLocation.getText().toString(), getApplicationContext());
                     if (searchQuery.getText().toString().equals("")) {
                     } else {
-                        venues = foursquareAPI.getVenuesCategory(coord, searchQuery.getText().toString());
-                        new Thread(new Runnable() {
+                        foursquareAPI.getVenuesCategory(coord, searchQuery.getText().toString());
+                        new Thread() {
                             @Override
                             public void run() {
                                 try {
                                     System.out.println("ESPEREM A QUE venues tingui algo");
-                                    while (venues.size() == 0) {
+                                    venues = new ArrayList<>();
+                                    Util.setNewVenues();
+                                    System.out.println("mida venues abans bucle: "+venues.size());
+                                    while (Util.getVenues().size() == 0) {
+                                        System.out.println("bucle: "+Util.getVenues().size());
                                         Thread.sleep(1000);
+                                        venues = Util.getVenues();
                                     }
                                 } catch (InterruptedException ex) {
                                     // Catching exception
                                 } finally {
                                     System.out.println("Venues té algo");
-                                    Util.setVenues(venues);
                                     activitySearch();
                                 }
                             }
-                        }).start();
+                        }.start();
                     }
                 }
             }

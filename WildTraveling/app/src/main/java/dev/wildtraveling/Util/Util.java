@@ -109,4 +109,9 @@ public final class Util {
 
         return res;
     }
+
+    public static void setNewVenues() {
+        venues.clear();
+        venues = new ArrayList<>();
+    }
 }

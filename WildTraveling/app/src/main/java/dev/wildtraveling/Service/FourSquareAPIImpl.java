@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.wildtraveling.Activity.getTripActivity;
+import dev.wildtraveling.Util.Util;
 
 /**
  * Created by pere on 4/24/17.
@@ -63,6 +64,8 @@ public class FourSquareAPIImpl implements FoursquareAPI {
         this.longitude = String.valueOf(coord.longitude);
         this.currentSearch = category;
         new FoursquareCall().execute();
+        Util.setVenues(venueList);
+        System.out.println("Mida venue list despres de getVenuesCategory: "+venueList.size());
         return venueList;
     }
 
@@ -120,6 +123,7 @@ public class FourSquareAPIImpl implements FoursquareAPI {
                 // all things went right
                 // parseFoursquare venues search result
                 venueList = parseFoursquare(temp);
+                Util.setVenues(venueList);
                 finish = true;
             }
         }
@@ -210,6 +214,8 @@ public class FourSquareAPIImpl implements FoursquareAPI {
             e.printStackTrace();
             return new ArrayList<FoursquareVenue>();
         }
+        System.out.println("Mida venue list despres de getVenuesCategory: "+temp.size());
+
         return temp;
 
     }
