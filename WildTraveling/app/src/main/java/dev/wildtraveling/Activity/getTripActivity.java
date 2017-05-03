@@ -5,17 +5,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
-import android.media.Image;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -35,7 +29,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -48,7 +41,6 @@ import dev.wildtraveling.Domain.Trip;
 import dev.wildtraveling.R;
 import dev.wildtraveling.Service.ExpenseService;
 import dev.wildtraveling.Service.FourSquareAPIImpl;
-import dev.wildtraveling.Service.FoursquareAPI;
 import dev.wildtraveling.Service.FoursquareVenue;
 import dev.wildtraveling.Service.TravelerService;
 import dev.wildtraveling.Service.TripService;
@@ -59,7 +51,6 @@ import dev.wildtraveling.Util.Util;
 import dev.wildtraveling.View.DestinationRecyclerView;
 import dev.wildtraveling.View.ExpensesRecyclerView;
 import dev.wildtraveling.View.ParticipantsRecyclerView;
-import dev.wildtraveling.View.SearchResultRecyclerView;
 
 public class getTripActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -202,7 +193,7 @@ public class getTripActivity extends AppCompatActivity
     private void initializeSearch() {
         currentFragment = 2;
         fab.setVisibility(View.INVISIBLE);
-        setTitle("Search");
+        setTitle("Explore");
 
         final String query = "";
 
@@ -235,7 +226,7 @@ public class getTripActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 currentSearch = "food";
-                searchQuery.setText(currentSearch);
+                searchQuery.setText("Food");
             }
         });
 
@@ -243,7 +234,7 @@ public class getTripActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 currentSearch = "arts";
-                searchQuery.setText(currentSearch);
+                searchQuery.setText("Arts");
             }
         });
 
@@ -251,7 +242,7 @@ public class getTripActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 currentSearch = "drinks";
-                searchQuery.setText(currentSearch);
+                searchQuery.setText("Drinks");
             }
         });
 
@@ -259,7 +250,7 @@ public class getTripActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 currentSearch = "shops";
-                searchQuery.setText(currentSearch);
+                searchQuery.setText("Shops");
             }
         });
 
@@ -267,7 +258,7 @@ public class getTripActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 currentSearch = "outdoors";
-                searchQuery.setText(currentSearch);
+                searchQuery.setText("Outdoors");
             }
         });
 

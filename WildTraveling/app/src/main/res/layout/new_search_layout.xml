@@ -80,6 +80,7 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:hint="Museum"
+            android:textColor="@color/textSecundary"
             android:id="@+id/searchQuery"/>
 
     </LinearLayout>
@@ -107,6 +108,7 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:hint="My Location"
+            android:textColor="@color/textSecundary"
             android:id="@+id/searchLocation"/>
     </LinearLayout>
     <RelativeLayout

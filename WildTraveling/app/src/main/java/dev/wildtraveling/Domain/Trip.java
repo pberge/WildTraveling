@@ -16,6 +16,7 @@ public class Trip implements Entity {
     private Date finalDate;
     private List<String> participants;
     private String userId;
+    private Double style;
 
 
     public Trip(String name, String destination, Date initDate, Date finalDate, List<String> participants, String userId) {
@@ -87,6 +88,14 @@ public class Trip implements Entity {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Double getStyle() {
+        return style;
+    }
+
+    public void setStyle(Double style) {
+        this.style = style;
     }
 }
 

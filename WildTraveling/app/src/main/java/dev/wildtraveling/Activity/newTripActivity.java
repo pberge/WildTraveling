@@ -1,5 +1,8 @@
 package dev.wildtraveling.Activity;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -45,6 +48,8 @@ public class newTripActivity extends AppCompatActivity {
     private EditText nameI, destinationI;
     private Date finalDate, initDate;
     private RegisteredTraveler currentUser;
+    private Double travelStyle = 0.0;
+    private Trip trip;
 
 
     @Override
@@ -162,11 +167,11 @@ public class newTripActivity extends AppCompatActivity {
         newFragment.show(getFragmentManager(), "datePicker");
 
         if(init){
-            newFragment.setOnDateClickListener(new onDateClickListener(){
+            newFragment.setOnDateClickListener(new onDateClickListener() {
                 @Override
                 public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
                     Calendar ini = Calendar.getInstance();
-                    ini.set(Calendar.YEAR,datePicker.getYear());
+                    ini.set(Calendar.YEAR, datePicker.getYear());
                     ini.set(Calendar.MONTH, datePicker.getMonth());
                     ini.set(Calendar.DAY_OF_MONTH, datePicker.getDayOfMonth());
                     initDate = ini.getTime();
@@ -176,7 +181,7 @@ public class newTripActivity extends AppCompatActivity {
             });
         }
         else{
-            newFragment.setOnDateClickListener(new onDateClickListener(){
+            newFragment.setOnDateClickListener(new onDateClickListener() {
                 @Override
                 public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
                     Calendar fin = Calendar.getInstance();
@@ -193,7 +198,7 @@ public class newTripActivity extends AppCompatActivity {
 
     private void newTrip(){
         Boolean complete;
-        Trip trip = new Trip();
+        trip = new Trip();
         name = nameI.getText().toString();
         if(!name.equals("")){
             trip.setName(name);
@@ -218,13 +223,43 @@ public class newTripActivity extends AppCompatActivity {
         trip.setUserId(travelerService.getCurrentUser());
 
         if (complete){
-            tripService.save(trip);
-            Intent getTrip = new Intent(this, getTripActivity.class);
-            getTrip.putExtra("FRAGMENT", "INFO");
-            tripService.setCurrentTrip(trip.getId());
-            startActivity(getTrip);
+            setPreferencesDialog().show();
         }
         else Toast.makeText(getApplicationContext(),"Incomplete",Toast.LENGTH_SHORT).show();
+    }
+
+    private Dialog setPreferencesDialog(){
+        final CharSequence[] items = {"Bag packer", "Back packing poser", "Intermediate", "Luxe"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select yout traveling style");
+        builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                travelStyle = (double) which;
+            }
+        });
+        builder.setCancelable(false);
+        builder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (!travelStyle.equals("")) {
+                    trip.setStyle(travelStyle);
+                    tripService.save(trip);
+                    Intent getTrip = new Intent(getApplicationContext(), getTripActivity.class);
+                    getTrip.putExtra("FRAGMENT", "INFO");
+                    tripService.setCurrentTrip(trip.getId());
+                    startActivity(getTrip);
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+        return builder.create();
     }
 
     @Override

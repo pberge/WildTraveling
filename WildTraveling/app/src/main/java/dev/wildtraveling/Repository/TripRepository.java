@@ -49,6 +49,8 @@ public class TripRepository extends FirebaseRepository<Trip> {
             }
             else if(d.getKey().equals("userId")){
                 trip.setUserId(d.getValue(String.class));
+            } else if(d.getKey().equals("style")){
+                trip.setStyle(d.getValue(Double.class));
             }
 
         }

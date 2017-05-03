@@ -35,7 +35,6 @@ public class tripsListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trips_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("My Trips");
         setSupportActionBar(toolbar);
 
         context = this;
