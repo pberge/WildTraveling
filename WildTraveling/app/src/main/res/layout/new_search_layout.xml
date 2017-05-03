@@ -71,15 +71,12 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center">
-        <ImageView
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/search"
-            android:tint="@color/colorAccent"/>
-        <EditText
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:hint="Museum"
+            android:hint="Select one icon"
+            android:textSize="18dp"
+            android:gravity="center"
             android:textColor="@color/textSecundary"
             android:id="@+id/searchQuery"/>
 

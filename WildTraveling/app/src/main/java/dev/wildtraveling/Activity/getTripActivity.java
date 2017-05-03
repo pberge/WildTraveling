@@ -27,9 +27,12 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.google.android.gms.maps.model.LatLng;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +74,7 @@ public class getTripActivity extends AppCompatActivity
     private NavigationView navigationView;
     private Integer currentFragment;
     private EditText searchLocation;
-    private EditText searchQuery;
+    private TextView searchQuery;
 
     private FourSquareAPIImpl foursquareAPI;
     private View searchResultRecyclerView;
@@ -204,7 +207,7 @@ public class getTripActivity extends AppCompatActivity
         venues = Util.getVenues();
 
         searchLocation = (EditText) findViewById(R.id.searchLocation);
-        searchQuery = (EditText) findViewById(R.id.searchQuery);
+        searchQuery = (TextView) findViewById(R.id.searchQuery);
         //Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         Location location = new Location("");
         location.setLatitude(41.7585872);
@@ -274,6 +277,7 @@ public class getTripActivity extends AppCompatActivity
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locListener);
                     LatLng coord = Util.getCurrentLocation();
                     if (searchQuery.getText().toString().equals("")) {
+                        Toast.makeText(getApplicationContext(),"Select one icon",Toast.LENGTH_SHORT).show();
                     } else {
                         foursquareAPI.getVenuesCategory(coord, searchQuery.getText().toString());
                         new Thread() {
@@ -302,6 +306,7 @@ public class getTripActivity extends AppCompatActivity
                 } else {
                     LatLng coord = Util.getLocationFromAddress(searchLocation.getText().toString(), getApplicationContext());
                     if (searchQuery.getText().toString().equals("")) {
+                        Toast.makeText(getApplicationContext(),"Select one icon",Toast.LENGTH_SHORT).show();
                     } else {
                         foursquareAPI.getVenuesCategory(coord, searchQuery.getText().toString());
                         new Thread() {
