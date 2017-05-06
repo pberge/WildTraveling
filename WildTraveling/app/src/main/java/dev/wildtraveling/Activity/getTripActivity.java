@@ -1,13 +1,18 @@
 package dev.wildtraveling.Activity;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -30,6 +35,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.w3c.dom.Text;
@@ -56,13 +66,14 @@ import dev.wildtraveling.View.ExpensesRecyclerView;
 import dev.wildtraveling.View.ParticipantsRecyclerView;
 
 public class getTripActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
     private TextView initDate;
     private TextView finalDate;
     private TripService tripService;
     private TravelerService travelerService;
     private ExpenseService expenseService;
+    private Handler handler;
 
     private View destinationRecyclerView;
     private View participantsRecyclerView;
@@ -75,15 +86,23 @@ public class getTripActivity extends AppCompatActivity
     private Integer currentFragment;
     private EditText searchLocation;
     private TextView searchQuery;
+    private ImageButton food;
+    private ImageButton arts;
+    private ImageButton drinks;
+    private ImageButton shops;
+    private ImageButton outdoors;
+
 
     private FourSquareAPIImpl foursquareAPI;
     private View searchResultRecyclerView;
     private List<FoursquareVenue> venues = new ArrayList<>();
     private ProgressDialog progressDialog;
-    private LocationManager locationManager;
-    private MyLocListener locListener;
+    private LatLng currentCoord = new LatLng(0.0, 0.0);
+    protected GoogleApiClient mGoogleApiClient;
+    private Location currentLocation;
 
     private String currentSearch;
+    private Boolean GPS;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,8 +111,13 @@ public class getTripActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        locListener = new MyLocListener();
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
 
         tripService = ServiceFactory.getTripService(getApplicationContext());
         travelerService = ServiceFactory.getTravelerService(getApplicationContext());
@@ -199,6 +223,7 @@ public class getTripActivity extends AppCompatActivity
         setTitle("Explore");
 
         final String query = "";
+        handler = new Handler();
 
         progressDialog = new ProgressDialog(getTripActivity.this);
         progressDialog.setMessage("Loading...");
@@ -208,132 +233,269 @@ public class getTripActivity extends AppCompatActivity
 
         searchLocation = (EditText) findViewById(R.id.searchLocation);
         searchQuery = (TextView) findViewById(R.id.searchQuery);
-        //Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        Location location = new Location("");
-        location.setLatitude(41.7585872);
-        location.setLongitude(0.8934583);
-        locListener.onLocationChanged(location);
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locListener);
+        currentLocation = new Location("");
+        currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (currentLocation != null) {
+            GPS = true;
+            System.out.println("current location no null");
+            currentCoord = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        } else { //forçar GPS
+            GPS = false;
+            System.out.println("current location null");
+        }
 
         Button exploreButton = (Button) findViewById(R.id.exploreButton);
-        ImageButton food = (ImageButton) findViewById(R.id.foodSearchButton);
-        ImageButton arts = (ImageButton) findViewById(R.id.artsSearchButton);
-        ImageButton drinks = (ImageButton) findViewById(R.id.drinksSearchButton);
-        ImageButton shops = (ImageButton) findViewById(R.id.shopsSearchButton);
-        ImageButton outdoors = (ImageButton) findViewById(R.id.outdoorsSearchButton);
+        food = (ImageButton) findViewById(R.id.foodSearchButton);
+        arts = (ImageButton) findViewById(R.id.artsSearchButton);
+        drinks = (ImageButton) findViewById(R.id.drinksSearchButton);
+        shops = (ImageButton) findViewById(R.id.shopsSearchButton);
+        outdoors = (ImageButton) findViewById(R.id.outdoorsSearchButton);
 
         food.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 currentSearch = "food";
                 searchQuery.setText("Food");
+                setImageColor();
             }
         });
-
         arts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 currentSearch = "arts";
                 searchQuery.setText("Arts");
+                setImageColor();
             }
         });
-
         drinks.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 currentSearch = "drinks";
                 searchQuery.setText("Drinks");
+                setImageColor();
             }
         });
-
         shops.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 currentSearch = "shops";
                 searchQuery.setText("Shops");
+                setImageColor();
             }
         });
-
         outdoors.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 currentSearch = "outdoors";
                 searchQuery.setText("Outdoors");
+                setImageColor();
             }
         });
+
+        currentSearch = "food";
+        searchQuery.setText("Food");
+        setImageColor();
 
         exploreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progressDialog.show();
-                if (searchLocation.getText().toString().equals("")) {
-                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        progressDialog.dismiss();
-                        return;
-                    }
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locListener);
-                    LatLng coord = Util.getCurrentLocation();
-                    if (searchQuery.getText().toString().equals("")) {
-                        Toast.makeText(getApplicationContext(),"Select one icon",Toast.LENGTH_SHORT).show();
-                    } else {
-                        foursquareAPI.getVenuesCategory(coord, searchQuery.getText().toString());
-                        new Thread() {
-                            @Override
-                            public void run() {
-                                try {
-                                    System.out.println("ESPEREM A QUE venues tingui algo");
-                                    venues = new ArrayList<>();
-                                    Util.setNewVenues();
-                                    System.out.println("mida venues abans bucle: " + venues.size());
-                                    while (Util.getVenues().size() == 0) {
-                                        System.out.println("bucle: " + Util.getVenues().size());
-                                        Thread.sleep(1000);
-                                        venues = Util.getVenues();
-                                    }
-                                } catch (InterruptedException ex) {
-                                    // Catching exception
-                                } finally {
-                                    System.out.println("Venues té algo");
-                                    activitySearch();
-                                }
-                            }
-                        }.start();
-                    }
-
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                currentLocation = new Location("");
+                currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                if (currentLocation != null) {
+                    GPS = true;
+                    System.out.println("current location no null");
+                    currentCoord = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                } else { //forçar GPS
+                    GPS = false;
+                    System.out.println("current location null");
+                }
+                if(!GPS){
+                    showGPSAlertDialog().show();
                 } else {
-                    LatLng coord = Util.getLocationFromAddress(searchLocation.getText().toString(), getApplicationContext());
-                    if (searchQuery.getText().toString().equals("")) {
-                        Toast.makeText(getApplicationContext(),"Select one icon",Toast.LENGTH_SHORT).show();
-                    } else {
-                        foursquareAPI.getVenuesCategory(coord, searchQuery.getText().toString());
-                        new Thread() {
-                            @Override
-                            public void run() {
-                                try {
-                                    System.out.println("ESPEREM A QUE venues tingui algo");
-                                    venues = new ArrayList<>();
-                                    Util.setNewVenues();
-                                    System.out.println("mida venues abans bucle: "+venues.size());
-                                    while (Util.getVenues().size() == 0) {
-                                        System.out.println("bucle: "+Util.getVenues().size());
-                                        Thread.sleep(1000);
-                                        venues = Util.getVenues();
+                    progressDialog.show();
+                    if (searchLocation.getText().toString().equals("")) {
+                        if (!currentCoord.equals(null)) {
+                            Util.setCurrentRouteStart(currentCoord);
+                        }
+                        if (searchQuery.getText().toString().equals("")) {
+                            progressDialog.dismiss();
+                            Toast.makeText(getApplicationContext(), "Select one icon", Toast.LENGTH_SHORT).show();
+                        } else {
+                            foursquareAPI.getVenuesCategory(currentCoord, searchQuery.getText().toString());
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        System.out.println("ESPEREM A QUE venues tingui algo");
+                                        venues = new ArrayList<>();
+                                        Util.setNewVenues();
+                                        System.out.println("mida venues abans bucle: " + venues.size());
+                                        while (Util.getVenues().size() == 0 && !Util.getFinishSearch()) {
+                                            Thread.sleep(1000);
+                                            venues = Util.getVenues();
+                                        }
+                                    } catch (InterruptedException ex) {
+                                        // Catching exception
+                                    } finally {
+                                        if(Util.getVenues().size()>0){
+                                            activitySearch();
+                                        } else {
+                                            //dialogNotFound().show();
+                                            progressDialog.dismiss();
+                                            showToast();
+                                        }
                                     }
-                                } catch (InterruptedException ex) {
-                                    // Catching exception
-                                } finally {
-                                    System.out.println("Venues té algo");
-                                    activitySearch();
                                 }
-                            }
-                        }.start();
+                            }).start();
+                        }
+
+                    } else {
+                        LatLng coord = Util.getLocationFromAddress(searchLocation.getText().toString(), getApplicationContext());
+                        Util.setCurrentRouteStart(coord);
+                        if (searchQuery.getText().toString().equals("")) {
+                            progressDialog.dismiss();
+                            Toast.makeText(getApplicationContext(), "Select one icon", Toast.LENGTH_SHORT).show();
+                        } else {
+                            foursquareAPI.getVenuesCategory(coord, searchQuery.getText().toString());
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        System.out.println("ESPEREM A QUE venues tingui algo");
+                                        venues = new ArrayList<>();
+                                        Util.setNewVenues();
+                                        System.out.println("mida venues abans bucle: " + venues.size());
+                                        while (Util.getVenues().size() == 0 && Util.getFinishSearch()) {
+                                            System.out.println("bucle: " + Util.getVenues().size());
+                                            Thread.sleep(1000);
+                                            venues = Util.getVenues();
+                                        }
+                                    } catch (InterruptedException ex) {
+                                        // Catching exception
+                                    } finally {
+                                        if(Util.getVenues().size()>0){
+                                            activitySearch();
+                                        } else {
+                                            //dialogNotFound().show();
+                                            progressDialog.dismiss();
+                                            showToast();
+                                        }
+                                    }
+                                }
+                            }).start();
+                        }
                     }
                 }
             }
         });
+    }
+
+    private void setImageColor() {
+        if(currentSearch.equals("food")){
+            food.setColorFilter(getResources().getColor(R.color.colorAccent));
+            drinks.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            arts.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            shops.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            outdoors.setColorFilter(getResources().getColor(R.color.colorPrimary));
+        } else if(currentSearch.equals("drinks")){
+            food.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            drinks.setColorFilter(getResources().getColor(R.color.colorAccent));
+            arts.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            shops.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            outdoors.setColorFilter(getResources().getColor(R.color.colorPrimary));
+        } else if(currentSearch.equals("arts")){
+            food.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            drinks.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            arts.setColorFilter(getResources().getColor(R.color.colorAccent));
+            shops.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            outdoors.setColorFilter(getResources().getColor(R.color.colorPrimary));
+        } else if(currentSearch.equals("shops")){
+            food.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            drinks.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            arts.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            shops.setColorFilter(getResources().getColor(R.color.colorAccent));
+            outdoors.setColorFilter(getResources().getColor(R.color.colorPrimary));
+        } else if(currentSearch.equals("outdoors")){
+            food.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            drinks.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            arts.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            shops.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            outdoors.setColorFilter(getResources().getColor(R.color.colorAccent));
+        }
+    }
+
+    private AlertDialog dialogNotFound() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("No Results");
+        builder.setMessage("Try with other parameters!")
+                .setCancelable(false)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+
+                    }
+                });
+        AlertDialog alert = builder.create();
+        return alert;
+    }
+
+    public void showToast() {
+        handler.post(new Runnable() {
+            public void run() {
+                //Toast.makeText(getApplicationContext(),
+                      //  "No results found, try with other parameters.", Toast.LENGTH_SHORT).show();
+                dialogNotFound().show();
+            }
+        });
+    }
+
+    private AlertDialog showGPSDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("GPS");
+        builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        turnGPSOn();
+                        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        }
+                        currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                        currentCoord = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        return alert;
+    }
+
+    private AlertDialog showGPSAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("GPS");
+        builder.setMessage("Your GPS seems to be disabled, you should enable it to continue")
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        return alert;
+    }
+
+    private void turnGPSOn() {
+        Intent intent = new Intent("android.location.GPS_ENABLED_CHANGE");
+        intent.putExtra("enabled", true);
+        sendBroadcast(intent);
     }
 
     private void activitySearch() {
@@ -431,4 +593,19 @@ public class getTripActivity extends AppCompatActivity
     }
 
 
+
+    @Override
+    public void onConnected(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
 }

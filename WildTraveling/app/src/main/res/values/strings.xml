@@ -15,4 +15,6 @@
     <string name="title_activity_trip">trip</string>
     <string name="title_activity_search">Map</string>
     <string name="title_activity_search_result">Exploration results</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_maps_route">mapsRouteActivity</string>
 </resources>

@@ -11,6 +11,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.RatingBar;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,11 +53,14 @@ public class searchResultActivity extends AppCompatActivity {
         ((RecyclerView) searchResultRecyclerView).addOnItemTouchListener(new RecyclerItemClickListener(this, (RecyclerView) searchResultRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-               /* Intent intent = new Intent(context, getTripActivity.class);
-                intent.putExtra("FRAGMENT", "INFO");
-                tripService.setCurrentTrip(trips.get(position).getId());
-                startActivity(intent);*/
-                System.out.print("CLICK: " + position);
+                FoursquareVenue venue = venues.get(position);
+                if(!venue.getLocation().equals("")){
+                    Util.setCurrentVenue(venue);
+                    Intent intent = new Intent(getApplicationContext(), mapsActivity.class);
+                    startActivity(intent);
+                } else{
+                    Toast.makeText(getApplicationContext(),"Not address found",Toast.LENGTH_SHORT);
+                }
             }
 
             @Override
@@ -69,7 +74,7 @@ public class searchResultActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(getApplicationContext(),getTripActivity.class);
-        intent.putExtra("FRAGMENT","SEARCH");
+        intent.putExtra("FRAGMENT", "SEARCH");
         Util.setVenues(new ArrayList<FoursquareVenue>());
         startActivity(intent);
     }

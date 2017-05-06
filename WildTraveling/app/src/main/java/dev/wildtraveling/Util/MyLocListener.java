@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.LatLng;
  * Created by pere on 4/28/17.
  */
 public class MyLocListener implements LocationListener {
+
     @Override
     public void onLocationChanged(Location location) {
         System.out.println("Change location");

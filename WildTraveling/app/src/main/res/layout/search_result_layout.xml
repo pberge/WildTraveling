@@ -20,47 +20,18 @@
             android:layout_gravity="center"
             android:textSize="18dp"
             android:hint="name"/>
-        <TextView
-            android:layout_width="match_parent"
+        <RatingBar
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18dp"
-            android:hint="1"
-            android:id="@+id/searchResult_price"
-            android:gravity="right"/>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/starsLayout">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/star"
-                android:scaleY="0.8"
-                android:scaleX="0.8"
-                android:id="@+id/star1"/>
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/star"
-                android:scaleY="0.8"
-                android:scaleX="0.8"
-                android:id="@+id/star2"/>
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/star"
-                android:scaleY="0.8"
-                android:scaleX="0.8"
-                android:id="@+id/star3"/>
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/star"
-                android:scaleY="0.8"
-                android:scaleX="0.8"
-                android:id="@+id/star4"/>
-        </LinearLayout>
+            android:layout_gravity="left"
+            android:scaleX="0.5"
+            android:scaleY="0.5"
+            android:numStars="4"
+            android:stepSize="1"
+            android:focusable="false"
+            android:progressTint="@color/colorAccent"
+            android:secondaryProgressTint="@color/textSecundary"
+            android:id="@+id/ratingBar"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">

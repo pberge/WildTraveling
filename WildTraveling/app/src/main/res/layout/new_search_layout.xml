@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/food"
             android:id="@+id/foodSearchButton"
-            android:tint="@color/colorAccent"
+            android:tint="@color/colorPrimary"
             android:background="@android:color/transparent"/>
         <Space
             android:layout_width="20dp"
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/drinks"
             android:id="@+id/drinksSearchButton"
-            android:tint="@color/colorAccent"
+            android:tint="@color/colorPrimary"
             android:background="@android:color/transparent"/>
         <Space
             android:layout_width="20dp"
@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_menu_camera"
             android:id="@+id/artsSearchButton"
-            android:tint="@color/colorAccent"
+            android:tint="@color/colorPrimary"
             android:background="@android:color/transparent"/>
 
         <Space
@@ -53,7 +53,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/shop"
             android:id="@+id/shopsSearchButton"
-            android:tint="@color/colorAccent"
+            android:tint="@color/colorPrimary"
             android:background="@android:color/transparent"/>
         <Space
             android:layout_width="20dp"
@@ -63,7 +63,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/nature"
             android:id="@+id/outdoorsSearchButton"
-            android:tint="@color/colorAccent"
+            android:tint="@color/colorPrimary"
             android:background="@android:color/transparent"/>
     </LinearLayout>
     <LinearLayout

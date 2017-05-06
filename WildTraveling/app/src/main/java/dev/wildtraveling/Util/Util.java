@@ -1,8 +1,14 @@
 package dev.wildtraveling.Util;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.provider.Settings;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -11,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import dev.wildtraveling.Service.FoursquareVenue;
 
@@ -22,6 +29,9 @@ public final class Util {
     private static Integer loaded = 0;
     private static List<FoursquareVenue> venues = new ArrayList<>();
     private static LatLng currentLocation;
+    private static LatLng currentRouteStart;
+    private static FoursquareVenue currentVenue;
+    private static Boolean finishSearch = false;
 
     public static String obtainDateString(Date date) {
         String result = "";
@@ -37,6 +47,7 @@ public final class Util {
 
         return result;
     }
+
 
     public static Integer getLoaded() { return loaded; }
 
@@ -132,5 +143,60 @@ public final class Util {
     public static void setNewVenues() {
         venues.clear();
         venues = new ArrayList<>();
+    }
+
+    public static boolean isOnline(Context context) {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+            return true;
+        }
+        return false;
+    }
+
+    public static FoursquareVenue getCurrentVenue() {
+        return currentVenue;
+    }
+
+    public static void setCurrentVenue(FoursquareVenue currentVenue) {
+        Util.currentVenue = currentVenue;
+    }
+
+    public static LatLng getCurrentRouteStart() {
+        return currentRouteStart;
+    }
+
+    public static void setCurrentRouteStart(LatLng currentRouteStart) {
+        Util.currentRouteStart = currentRouteStart;
+    }
+
+
+    public static Boolean getFinishSearch() {
+        return finishSearch;
+    }
+
+    public static void setFinishSearch(Boolean finishSearch) {
+        Util.finishSearch = finishSearch;
+    }
+
+    public static String getCompleteAddressString(double LATITUDE, double LONGITUDE, Context context) {
+        String strAdd = "";
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(LATITUDE, LONGITUDE, 1);
+            if (addresses != null) {
+                Address returnedAddress = addresses.get(0);
+                StringBuilder strReturnedAddress = new StringBuilder("");
+
+                for (int i = 0; i < returnedAddress.getMaxAddressLineIndex(); i++) {
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
+                }
+                strAdd = strReturnedAddress.toString();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return strAdd;
     }
 }

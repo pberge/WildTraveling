@@ -14,5 +14,10 @@
     <color name="backgroundList">#b3b3b3</color>
     <color name="principalFosc">#0d47a1</color>
     <color name="secundary">#ff6d00</color>
+    <color name="ruta1">#5ee652</color>
+    <color name="ruta2">#f1db35</color>
+    <color name="ruta3">#3068e1</color>
+    <color name="ruta4">#c7333d</color>
+    <color name="ruta5">#ac24f5</color>
 
 </resources>

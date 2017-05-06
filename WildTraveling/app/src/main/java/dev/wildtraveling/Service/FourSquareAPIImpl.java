@@ -66,6 +66,7 @@ public class FourSquareAPIImpl implements FoursquareAPI {
         new FoursquareCall().execute();
         Util.setVenues(venueList);
         System.out.println("Mida venue list despres de getVenuesCategory: "+venueList.size());
+        Util.setFinishSearch(true);
         return venueList;
     }
 
