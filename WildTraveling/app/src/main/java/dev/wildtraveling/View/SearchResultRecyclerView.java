@@ -1,22 +1,18 @@
 package dev.wildtraveling.View;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
 import java.util.List;
 
 import dev.wildtraveling.R;
-import dev.wildtraveling.Service.FoursquareVenue;
+import dev.wildtraveling.Domain.FoursquareVenue;
 
 /**
  * Created by pere on 4/25/17.

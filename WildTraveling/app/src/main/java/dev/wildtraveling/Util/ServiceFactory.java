@@ -9,8 +9,7 @@ import dev.wildtraveling.Repository.RegisteredTravelerRepository;
 import dev.wildtraveling.Repository.NoUserRepository;
 import dev.wildtraveling.Repository.TripRepository;
 import dev.wildtraveling.Service.ExpenseService;
-import dev.wildtraveling.Service.FourSquareAPIImpl;
-import dev.wildtraveling.Service.FoursquareAPI;
+import dev.wildtraveling.Service.LocationServiceAdapter;
 import dev.wildtraveling.Service.TravelerService;
 import dev.wildtraveling.Service.TripService;
 
@@ -24,7 +23,7 @@ public final class ServiceFactory {
     private static ExpenseService expenseService;
 
     private static Integer numServices = 3;
-    private static FourSquareAPIImpl foursquareAPI;
+    private static LocationServiceAdapter foursquareAPI;
 
     public static TripService getTripService(Context context) {
         if (tripService == null)
@@ -47,9 +46,9 @@ public final class ServiceFactory {
         return expenseService;
     }
 
-    public static FourSquareAPIImpl getFoursquareAPI() {
+    public static LocationServiceAdapter getFoursquareAPI() {
         if (foursquareAPI == null) {
-            foursquareAPI = new FourSquareAPIImpl();
+            foursquareAPI = new LocationServiceAdapter();
         }
         return foursquareAPI;
     }

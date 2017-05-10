@@ -2,7 +2,6 @@ package dev.wildtraveling.Activity;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -13,7 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,7 +43,7 @@ import dev.wildtraveling.Library.RouteException;
 import dev.wildtraveling.Library.Routing;
 import dev.wildtraveling.Library.RoutingListener;
 import dev.wildtraveling.R;
-import dev.wildtraveling.Service.FoursquareVenue;
+import dev.wildtraveling.Domain.FoursquareVenue;
 import dev.wildtraveling.Util.Util;
 
 public class mapsActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {

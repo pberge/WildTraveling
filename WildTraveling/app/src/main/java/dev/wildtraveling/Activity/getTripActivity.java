@@ -3,16 +3,13 @@ package dev.wildtraveling.Activity;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,6 +28,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,30 +37,30 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import dev.wildtraveling.Domain.Destination;
 import dev.wildtraveling.Domain.Expense;
 import dev.wildtraveling.Domain.Person;
 import dev.wildtraveling.Domain.Trip;
+import dev.wildtraveling.Domain.dayMeteoPrevision;
 import dev.wildtraveling.R;
 import dev.wildtraveling.Service.ExpenseService;
-import dev.wildtraveling.Service.FourSquareAPIImpl;
-import dev.wildtraveling.Service.FoursquareVenue;
+import dev.wildtraveling.Service.LocationServiceAdapter;
+import dev.wildtraveling.Domain.FoursquareVenue;
+import dev.wildtraveling.Service.MeteoServiceAdapter;
 import dev.wildtraveling.Service.TravelerService;
 import dev.wildtraveling.Service.TripService;
-import dev.wildtraveling.Util.MyLocListener;
 import dev.wildtraveling.Util.RecyclerItemClickListener;
 import dev.wildtraveling.Util.ServiceFactory;
 import dev.wildtraveling.Util.Util;
 import dev.wildtraveling.View.DestinationRecyclerView;
 import dev.wildtraveling.View.ExpensesRecyclerView;
+import dev.wildtraveling.View.MeteoRecyclerView;
 import dev.wildtraveling.View.ParticipantsRecyclerView;
 
 public class getTripActivity extends AppCompatActivity
@@ -74,6 +72,7 @@ public class getTripActivity extends AppCompatActivity
     private TravelerService travelerService;
     private ExpenseService expenseService;
     private Handler handler;
+    private View v;
 
     private View destinationRecyclerView;
     private View participantsRecyclerView;
@@ -91,9 +90,18 @@ public class getTripActivity extends AppCompatActivity
     private ImageButton drinks;
     private ImageButton shops;
     private ImageButton outdoors;
+    private TextView maxTemp;
+    private TextView minTemp;
+    private TextView wind;
+    private TextView rain;
+    private TextView humidity;
+    private TextView meteo_desc;
+    private ImageView meteo_icon;
+    private TextView meteo_day;
 
-
-    private FourSquareAPIImpl foursquareAPI;
+    private List<dayMeteoPrevision> meteo;
+    private MeteoServiceAdapter meteoAdapter;
+    private LocationServiceAdapter foursquareAPI;
     private View searchResultRecyclerView;
     private List<FoursquareVenue> venues = new ArrayList<>();
     private ProgressDialog progressDialog;
@@ -118,6 +126,9 @@ public class getTripActivity extends AppCompatActivity
                 .addApi(LocationServices.API)
                 .build();
         mGoogleApiClient.connect();
+
+        handler = new Handler();
+        meteoAdapter = new MeteoServiceAdapter();
 
         tripService = ServiceFactory.getTripService(getApplicationContext());
         travelerService = ServiceFactory.getTravelerService(getApplicationContext());
@@ -152,11 +163,40 @@ public class getTripActivity extends AppCompatActivity
             navigationView.getMenu().getItem(2).setChecked(true);
             initFragment(R.layout.new_search_layout);
             initializeSearch();
+        } else if (intent.getStringExtra("FRAGMENT").equals("METEO")){
+            navigationView.getMenu().getItem(3).setChecked(true);
+            initFragment(R.layout.meteo_layout);
+            initializeMeteo();
         }
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
+
+    private void getMeteo() {
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        currentLocation = new Location("");
+        currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (currentLocation != null) {
+            GPS = true;
+            System.out.println("current location no null");
+            currentCoord = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        } else { //forçar GPS
+            GPS = false;
+            System.out.println("current location null");
+        }
+        if(!GPS){
+            showGPSAlertDialog().show();
+        } else {
+            progressDialog = new ProgressDialog(getTripActivity.this);
+            progressDialog.setMessage("Loading...");
+            progressDialog.show();
+            new getMeteo().execute();
+        }
+    }
+
 
     @Override
     public void onBackPressed() {
@@ -211,6 +251,8 @@ public class getTripActivity extends AppCompatActivity
         } else if (id == R.id.search) {
             initFragment(R.layout.new_search_layout);
             initializeSearch();
+        } else if (id == R.id.meteo){
+            getMeteo();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -223,7 +265,6 @@ public class getTripActivity extends AppCompatActivity
         setTitle("Explore");
 
         final String query = "";
-        handler = new Handler();
 
         progressDialog = new ProgressDialog(getTripActivity.this);
         progressDialog.setMessage("Loading...");
@@ -449,7 +490,7 @@ public class getTripActivity extends AppCompatActivity
         handler.post(new Runnable() {
             public void run() {
                 //Toast.makeText(getApplicationContext(),
-                      //  "No results found, try with other parameters.", Toast.LENGTH_SHORT).show();
+                //  "No results found, try with other parameters.", Toast.LENGTH_SHORT).show();
                 dialogNotFound().show();
             }
         });
@@ -501,10 +542,6 @@ public class getTripActivity extends AppCompatActivity
     private void activitySearch() {
         Intent intent = new Intent(getApplicationContext(), searchResultActivity.class);
         startActivity(intent);
-    }
-
-    public LatLng getLocationFromAddress(String strAddress) {
-        return Util.getLocationFromAddress(strAddress, getApplicationContext());
     }
 
     private void initializeExpenses() {
@@ -582,17 +619,52 @@ public class getTripActivity extends AppCompatActivity
         ((RecyclerView) participantsRecyclerView).setAdapter(part);
     }
 
+    private void initializeMeteo() {
+        currentFragment = 3;
+        fab.setVisibility(View.INVISIBLE);
+        setTitle("Meteo");
+
+        meteo_day = (TextView) findViewById(R.id.meteo_day);
+        maxTemp = (TextView) findViewById(R.id.meteo_maxTemp);
+        minTemp = (TextView) findViewById(R.id.meteo_minTemp);
+        wind = (TextView) findViewById(R.id.meteo_wind);
+        humidity = (TextView) findViewById(R.id.meteo_humidity);
+        meteo_desc = (TextView) findViewById(R.id.meteo_weather);
+        meteo_icon = (ImageView) findViewById(R.id.meteo_icon);
+
+        Calendar c = Calendar.getInstance();
+        Integer day = c.get(Calendar.DAY_OF_MONTH);
+        Integer month = c.get(Calendar.MONTH);
+
+        meteo_day.setText(day + " " + Util.getMonthName("" + month));
+        minTemp.setText(meteo.get(0).getTemp_min().toString());
+        maxTemp.setText(meteo.get(0).getTemp_max().toString());
+        wind.setText(meteo.get(0).getWind_speed().toString());
+        humidity.setText(meteo.get(0).getHumidity().toString());
+        meteo_desc.setText(meteo.get(0).getWeather_type());
+        meteo_icon.setImageResource(meteoAdapter.setMeteoIcon(meteo.get(0).getWeather_type()));
+
+        List<dayMeteoPrevision> rview = meteo;
+        dayMeteoPrevision a = rview.remove(0); //remove current day
+
+        View meteoRecyclerView = findViewById(R.id.meteo_recyclerview);
+        ((RecyclerView) meteoRecyclerView).setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        MeteoRecyclerView part = new MeteoRecyclerView(getApplicationContext(), rview);
+        part.notifyDataSetChanged();
+        ((RecyclerView) meteoRecyclerView).setAdapter(part);
+
+        //rview.add(0, a); //Add current day
+
+    }
+
     private void initFragment(int id) {
         LayoutInflater inflater = getLayoutInflater();
-        View v;
         if (id != -1) v = inflater.inflate(id, null);
         else v = new View(getApplicationContext());
         FrameLayout frameLayout = (FrameLayout) findViewById(R.id.main_frame_layout);
         frameLayout.removeAllViews();
         frameLayout.addView(v);
     }
-
-
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -607,5 +679,42 @@ public class getTripActivity extends AppCompatActivity
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
+    }
+
+    private class getMeteo extends AsyncTask<View, Void, String> {
+
+
+        List<dayMeteoPrevision> m;
+
+        @Override
+        protected String doInBackground(View... urls) {
+            // make Call to the url
+            m = meteoAdapter.getForecast(currentCoord);
+            return "";
+        }
+
+        @Override
+        protected void onPreExecute() {
+            // we can start a progress bar here
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (m == null) {
+                // we have an error to the call
+                // we can also stop the progress bar
+                System.out.println("METEO ES NULL a getTRipActivity");
+            } else {
+                // all things went right
+                // parseFoursquare venues search result
+                navigationView.getMenu().getItem(3).setChecked(true);
+                initFragment(R.layout.meteo_layout);
+                meteo = m;
+                System.out.println("El temps que fa avui es: "+meteo.get(0).getWeather_description());
+                initializeMeteo();
+                progressDialog.dismiss();
+
+            }
+        }
     }
 }

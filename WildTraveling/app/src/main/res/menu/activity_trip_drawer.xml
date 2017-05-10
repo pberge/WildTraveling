@@ -14,6 +14,10 @@
             android:id="@+id/search"
             android:icon="@drawable/earth"
             android:title="Explore" />
+        <item
+            android:id="@+id/meteo"
+            android:icon="@drawable/sun_cloud"
+            android:title="Meteo" />
 
     </group>
 

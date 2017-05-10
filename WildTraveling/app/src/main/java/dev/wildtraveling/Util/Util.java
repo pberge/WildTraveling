@@ -1,14 +1,10 @@
 package dev.wildtraveling.Util;
 
 import android.content.Context;
-import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
-import android.provider.Settings;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -19,7 +15,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import dev.wildtraveling.Service.FoursquareVenue;
+import dev.wildtraveling.Domain.FoursquareVenue;
+import dev.wildtraveling.Domain.dayMeteoPrevision;
 
 /**
  * Created by pere on 4/12/17.
@@ -32,6 +29,16 @@ public final class Util {
     private static LatLng currentRouteStart;
     private static FoursquareVenue currentVenue;
     private static Boolean finishSearch = false;
+
+    public static dayMeteoPrevision getMeteo() {
+        return meteo;
+    }
+
+    public static void setMeteo(dayMeteoPrevision meteo) {
+        Util.meteo = meteo;
+    }
+
+    private static dayMeteoPrevision meteo;
 
     public static String obtainDateString(Date date) {
         String result = "";
@@ -198,5 +205,12 @@ public final class Util {
             e.printStackTrace();
         }
         return strAdd;
+    }
+
+
+    public static String getMonthName(String month) {
+        int m = Integer.parseInt(month);
+        String[] months = {"Jan", "Feb", "Mar", "Apl", "May", "Jun", "Jul", "Aug", "Sep", "Oct","Nov","Dec"};
+        return months[m];
     }
 }

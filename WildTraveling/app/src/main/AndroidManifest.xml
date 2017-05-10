@@ -92,7 +92,7 @@
             android:name=".Activity.searchResultActivity"
             android:label="@string/title_activity_search_result"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Activity.mapsActivity"></activity>
+        <activity android:name=".Activity.mapsActivity" />
     </application>
 
 </manifest>

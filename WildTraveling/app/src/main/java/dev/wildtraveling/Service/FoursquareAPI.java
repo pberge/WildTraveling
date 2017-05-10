@@ -4,6 +4,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
+import dev.wildtraveling.Domain.FoursquareVenue;
+
 /**
  * Created by pere on 4/24/17.
  */
