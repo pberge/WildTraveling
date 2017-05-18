@@ -22,7 +22,7 @@
                 android:layout_height="wrap_content"
                 android:paddingTop="10dp"
                 android:orientation="vertical"
-                android:paddingBottom="4dp">
+                android:paddingBottom="10dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
                         android:layout_gravity="center"/>
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:hint="START"
                         android:gravity="center_vertical"
                         android:layout_gravity="center_vertical"
@@ -53,8 +53,9 @@
                         android:tint="@color/colorAccent"/>
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:hint="END"
+                        android:gravity="center_vertical"
                         android:layout_gravity="center_vertical"
                         android:id="@+id/endPoint"/>
                 </LinearLayout>

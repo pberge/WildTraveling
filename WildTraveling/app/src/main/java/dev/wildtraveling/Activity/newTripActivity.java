@@ -1,18 +1,23 @@
 package dev.wildtraveling.Activity;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,6 +55,10 @@ public class newTripActivity extends AppCompatActivity {
     private RegisteredTraveler currentUser;
     private Double travelStyle = 0.0;
     private Trip trip;
+    private EditText contact_name;
+    private EditText contact_phone;
+    private EditText contact_email;
+
 
 
     @Override
@@ -231,7 +240,7 @@ public class newTripActivity extends AppCompatActivity {
     private Dialog setPreferencesDialog(){
         final CharSequence[] items = {"Bag packer", "Back packing poser", "Intermediate", "Luxe"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select yout traveling style");
+        builder.setTitle("Select your traveling style");
         builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -244,12 +253,47 @@ public class newTripActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 if (!travelStyle.equals("")) {
                     trip.setStyle(travelStyle);
-                    tripService.save(trip);
-                    Intent getTrip = new Intent(getApplicationContext(), getTripActivity.class);
-                    getTrip.putExtra("FRAGMENT", "INFO");
-                    tripService.setCurrentTrip(trip.getId());
-                    startActivity(getTrip);
+                    setContactPersonDialog().show();
                 }
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+        return builder.create();
+    }
+
+    private Dialog setContactPersonDialog(){
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.contact_person_layout, null);
+        contact_name = (EditText) view.findViewById(R.id.contact_name);
+        contact_phone = (EditText) view.findViewById(R.id.contct_phone);
+        contact_email = (EditText) view.findViewById(R.id.contact_email);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Introduce a contact person");
+        builder.setView(view);
+        builder.setCancelable(false);
+        builder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //Create contact person
+                Person person = new Person();
+                person.setName(contact_name.getText().toString());
+                person.setPhone(contact_phone.getText().toString());
+                person.setEmail(contact_email.getText().toString());
+                travelerService.save(person);
+                trip.setContactPerson(person.getId());
+
+                tripService.save(trip);
+                Intent getTrip = new Intent(getApplicationContext(), getTripActivity.class);
+                getTrip.putExtra("FRAGMENT", "INFO");
+                tripService.setCurrentTrip(trip.getId());
+                startActivity(getTrip);
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

@@ -6,7 +6,10 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.location.Location;
+import android.media.Image;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,6 +32,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,6 +59,7 @@ import dev.wildtraveling.Domain.FoursquareVenue;
 import dev.wildtraveling.Service.MeteoServiceAdapter;
 import dev.wildtraveling.Service.TravelerService;
 import dev.wildtraveling.Service.TripService;
+import dev.wildtraveling.Service.emergencyPhoneAdapter;
 import dev.wildtraveling.Util.RecyclerItemClickListener;
 import dev.wildtraveling.Util.ServiceFactory;
 import dev.wildtraveling.Util.Util;
@@ -101,6 +106,7 @@ public class getTripActivity extends AppCompatActivity
 
     private List<dayMeteoPrevision> meteo;
     private MeteoServiceAdapter meteoAdapter;
+    private emergencyPhoneAdapter emergencyAdapter;
     private LocationServiceAdapter foursquareAPI;
     private View searchResultRecyclerView;
     private List<FoursquareVenue> venues = new ArrayList<>();
@@ -129,6 +135,7 @@ public class getTripActivity extends AppCompatActivity
 
         handler = new Handler();
         meteoAdapter = new MeteoServiceAdapter();
+        emergencyAdapter = new emergencyPhoneAdapter();
 
         tripService = ServiceFactory.getTripService(getApplicationContext());
         travelerService = ServiceFactory.getTravelerService(getApplicationContext());
@@ -163,10 +170,14 @@ public class getTripActivity extends AppCompatActivity
             navigationView.getMenu().getItem(2).setChecked(true);
             initFragment(R.layout.new_search_layout);
             initializeSearch();
-        } else if (intent.getStringExtra("FRAGMENT").equals("METEO")){
+        } else if (intent.getStringExtra("FRAGMENT").equals("METEO")) {
             navigationView.getMenu().getItem(3).setChecked(true);
             initFragment(R.layout.meteo_layout);
             initializeMeteo();
+        } else if (intent.getStringExtra("FRAGMENT").equals("EMERGENCY")) {
+            navigationView.getMenu().getItem(4).setChecked(true);
+            initFragment(R.layout.emergency_layout);
+            initializeEmergency();
         }
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -187,7 +198,7 @@ public class getTripActivity extends AppCompatActivity
             GPS = false;
             System.out.println("current location null");
         }
-        if(!GPS){
+        if (!GPS) {
             showGPSAlertDialog().show();
         } else {
             progressDialog = new ProgressDialog(getTripActivity.this);
@@ -251,13 +262,139 @@ public class getTripActivity extends AppCompatActivity
         } else if (id == R.id.search) {
             initFragment(R.layout.new_search_layout);
             initializeSearch();
-        } else if (id == R.id.meteo){
+        } else if (id == R.id.meteo) {
             getMeteo();
+        } else if (id == R.id.emergency) {
+            initFragment(R.layout.emergency_layout);
+            initializeEmergency();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    private void initializeEmergency() {
+        currentFragment = 4;
+        fab.setVisibility(View.INVISIBLE);
+        setTitle("Emergencies");
+
+        Point size = new Point();
+        getWindowManager().getDefaultDisplay().getSize(size);
+        int halfScreen = Util.getHalfScreenWidht(size);
+        LinearLayout a = (LinearLayout) findViewById(R.id.emergency_call_layout);
+        a.setMinimumWidth(halfScreen);
+
+        ImageButton hospital = (ImageButton) findViewById(R.id.hospital_route_button);
+        ImageButton emergencyCall = (ImageButton) findViewById(R.id.emergency_call_button);
+        ImageButton contactCall = (ImageButton) findViewById(R.id.contact_call_button);
+
+        hospital.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hospitalRoute();
+            }
+        });
+        emergencyCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                emergCall();
+            }
+        });
+        contactCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                contctCall();
+            }
+        });
+    }
+
+    private void contctCall() {
+        Intent callIntent = new Intent(Intent.ACTION_CALL);
+        Person person = travelerService.getPersonById(trip.getContactPerson());
+        callIntent.setData(Uri.parse("tel:"+person.getPhone()));
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {}
+        startActivity(callIntent);
+    }
+
+    private void emergCall() { //contactar amb la api
+        new getEmergencyPhone().execute();
+    }
+
+    private void call(String num) {
+        Intent callIntent = new Intent(Intent.ACTION_CALL);
+        System.out.println("telefon a trucar: " + num);
+        callIntent.setData(Uri.parse("tel:"+num));
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {}
+        //startActivity(callIntent);
+    }
+
+    private void hospitalRoute() { //api i iniciar activity route
+        /*  1. fer la cerca de l'hospital
+            2. obtenir la ruta
+            3. anar a l'activitat de mapa
+         */
+        progressDialog = new ProgressDialog(getTripActivity.this);
+        progressDialog.setMessage("Loading...");
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        currentLocation = new Location("");
+        currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (currentLocation != null) {
+            GPS = true;
+            System.out.println("current location no null");
+            currentCoord = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        } else { //forçar GPS
+            GPS = false;
+            System.out.println("current location null");
+        }
+        progressDialog.show();
+        Util.setCurrentRouteStart(currentCoord);
+
+        foursquareAPI.getHospital(currentCoord);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    System.out.println("ESPEREM A QUE venues tingui algo");
+                    venues = new ArrayList<>();
+                    Util.setNewVenues();
+                    System.out.println("mida venues abans bucle: " + venues.size());
+                    while (Util.getVenues().size() == 0 && !Util.getFinishSearch()) {
+                        Thread.sleep(1000);
+                        venues = Util.getVenues();
+                    }
+                } catch (InterruptedException ex) {
+                    // Catching exception
+                } finally {
+                    System.out.println("mida venues finally: " + venues.size());
+                    if(Util.getVenues().size()>0){
+                        FoursquareVenue v = getNearestHospital();
+                        System.out.println("hospital name: "+v.getName());
+                        Util.setCurrentVenue(v);
+                        activityMaps();
+                        progressDialog.dismiss();
+                    } else {
+                        progressDialog.dismiss();
+                        showToast();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    private FoursquareVenue getNearestHospital() {
+        FoursquareVenue res = new FoursquareVenue();
+        res.setDistance(99999999);
+        for(FoursquareVenue v : Util.getVenues()){
+            if(v.getDistance()<res.getDistance()){
+                res = v;
+            }
+        }
+        return res;
+    }
+
 
     private void initializeSearch() {
         currentFragment = 2;
@@ -544,6 +681,11 @@ public class getTripActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    private void activityMaps() {
+        Intent intent = new Intent(getApplicationContext(), mapsActivity.class);
+        startActivity(intent);
+    }
+
     private void initializeExpenses() {
         currentFragment = 1;
         fab.setVisibility(View.VISIBLE);
@@ -653,8 +795,6 @@ public class getTripActivity extends AppCompatActivity
         part.notifyDataSetChanged();
         ((RecyclerView) meteoRecyclerView).setAdapter(part);
 
-        //rview.add(0, a); //Add current day
-
     }
 
     private void initFragment(int id) {
@@ -714,6 +854,42 @@ public class getTripActivity extends AppCompatActivity
                 initializeMeteo();
                 progressDialog.dismiss();
 
+            }
+        }
+    }
+
+    private class getEmergencyPhone extends AsyncTask<View, Void, String> {
+
+
+        String phone = "";
+
+        @Override
+        protected String doInBackground(View... urls) {
+            // make Call to the url
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            }
+            currentLocation = new Location("");
+            currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            String code = Util.getCountryCode(currentLocation.getLatitude(),currentLocation.getLongitude(),getApplicationContext());
+            phone = emergencyAdapter.getEmergencyPhone(currentCoord, code);
+            return "";
+        }
+
+        @Override
+        protected void onPreExecute() {
+            // we can start a progress bar here
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (phone.equals("")) {
+                // we have an error to the call
+                // we can also stop the progress bar
+                System.out.println("phone ES NULL a getTRipActivity");
+            } else {
+                // INIT CALL ACTIVITY
+                System.out.println("phone NO ES NULL a getTRipActivity");
+                call(phone);
             }
         }
     }

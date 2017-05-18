@@ -17,6 +17,7 @@ public class Trip implements Entity {
     private List<String> participants;
     private String userId;
     private Double style;
+    private String contactPerson;
 
 
     public Trip(String name, String destination, Date initDate, Date finalDate, List<String> participants, String userId) {
@@ -96,6 +97,14 @@ public class Trip implements Entity {
 
     public void setStyle(Double style) {
         this.style = style;
+    }
+
+    public void setContactPerson(String person) {
+        this.contactPerson = person;
+    }
+
+    public String getContactPerson() {
+        return contactPerson;
     }
 }
 

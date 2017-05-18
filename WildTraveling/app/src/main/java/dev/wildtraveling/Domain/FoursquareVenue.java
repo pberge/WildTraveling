@@ -12,6 +12,7 @@ public class FoursquareVenue {
     private Double longitute;
     private Double latitude;
     private String iconURL;
+    private Integer distance;
 
     public FoursquareVenue() {
         this.name = "";
@@ -78,5 +79,13 @@ public class FoursquareVenue {
 
     public void setIconURL(String iconURL) {
         this.iconURL = iconURL;
+    }
+
+    public Integer getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Integer distance) {
+        this.distance = distance;
     }
 }

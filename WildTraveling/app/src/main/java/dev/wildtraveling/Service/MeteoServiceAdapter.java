@@ -147,6 +147,5 @@ public class MeteoServiceAdapter {
             return R.drawable.sun_cloud;
         }
         return R.drawable.sun_cloud;
-
     }
 }

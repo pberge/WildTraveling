@@ -116,4 +116,12 @@ public class TravelerService extends Service<RegisteredTraveler> {
         return false;
     }
 
+    public Person getPersonById(String contactPerson) {
+        for(Person person: personRepository.all()){
+            if(person.getId().equals(contactPerson)){
+                return person;
+            }
+        }
+        return null;
+    }
 }

@@ -64,7 +64,7 @@ public class LocationServiceAdapter implements FoursquareAPI {
         this.currentSearch = category;
         new FoursquareCall().execute();
         Util.setVenues(venueList);
-        System.out.println("Mida venue list despres de getVenuesCategory: "+venueList.size());
+        System.out.println("Mida venue list despres de getVenuesCategory: " + venueList.size());
         Util.setFinishSearch(true);
         return venueList;
     }
@@ -81,6 +81,55 @@ public class LocationServiceAdapter implements FoursquareAPI {
 
     public List<FoursquareVenue> getVenuesFromQuery(LatLng coord, String museum) {
         return null;
+    }
+
+    public List<FoursquareVenue> getHospital(LatLng coord) {
+        this.latitude = String.valueOf(coord.latitude);
+        this.longitude = String.valueOf(coord.longitude);
+        venueList = new ArrayList<>();
+        Util.setFinishSearch(false);
+        new HospitalCall().execute();
+        Util.setVenues(venueList);
+        return venueList;
+    }
+
+    private class HospitalCall extends AsyncTask<View, Void, String> {
+
+
+        @Override
+        protected String doInBackground(View... urls) {
+            // make Call to the url
+            temp = makeCall("https://api.foursquare.com/v2/venues/search?"+
+                    "&client_id=" + CLIENT_ID +
+                    "&client_secret=" + CLIENT_SECRET +
+                    "&ll=" + latitude + "," + longitude+
+                    "&v="+v+
+                    "&query=hospital"+
+                    "&oauth_token=DBRXKVUS1HG52CRZK5ERIKQ42BP4UPL11Q2N0PQUCCZZ3A4R");
+            return "";
+        }
+
+        @Override
+        protected void onPreExecute() {
+            // we can start a progress bar here
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (temp == null) {
+                // we have an error to the call
+                // we can also stop the progress bar
+                finish = true;
+                System.out.println("TEMP ES NULL");
+            } else {
+                // all things went right
+                // parseFoursquare venues search result
+                venueList = parseFoursquareSearch(temp);
+                Util.setVenues(venueList);
+                Util.setFinishSearch(true);
+                finish = true;
+            }
+        }
     }
 
     private class FoursquareCall extends AsyncTask<View, Void, String> {
@@ -158,6 +207,49 @@ public class LocationServiceAdapter implements FoursquareAPI {
         }
         // trim the whitespaces
         return replyString.trim();
+    }
+
+    private List<FoursquareVenue> parseFoursquareSearch(String response) {
+        ArrayList<FoursquareVenue> temp = new ArrayList<FoursquareVenue>();
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+
+            if (jsonObject.has("response")) {
+                if (jsonObject.getJSONObject("response").has("venues")) {
+
+                    JSONArray jsonArray = jsonObject.getJSONObject("response").getJSONArray("venues");
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        FoursquareVenue poi = new FoursquareVenue();
+                        if (jsonArray.getJSONObject(i).has("name")) {
+                            poi.setName(jsonArray.getJSONObject(i).getString("name"));
+                            if (jsonArray.getJSONObject(i).has("location")) {
+                                if (jsonArray.getJSONObject(i).getJSONObject("location").has("address")) {
+                                    poi.setLocation(jsonArray.getJSONObject(i).getJSONObject("location").getString("address"));
+                                    if (jsonArray.getJSONObject(i).getJSONObject("location").has("lat")) {
+                                        poi.setLatitude(jsonArray.getJSONObject(i).getJSONObject("location").getDouble("lat"));
+                                    }
+                                    if (jsonArray.getJSONObject(i).getJSONObject("location").has("lng")) {
+                                        poi.setLongitute(jsonArray.getJSONObject(i).getJSONObject("location").getDouble("lng"));
+                                    }
+                                    if (jsonArray.getJSONObject(i).getJSONObject("location").has("distance")) {
+                                        poi.setDistance(jsonArray.getJSONObject(i).getJSONObject("location").getInt("distance"));
+                                    }
+                                    temp.add(poi);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<FoursquareVenue>();
+        }
+        System.out.println("Mida hospital list despres de getVenuesCategory: "+temp.size());
+
+        return temp;
     }
 
     private static ArrayList<FoursquareVenue> parseFoursquare(final String response) {

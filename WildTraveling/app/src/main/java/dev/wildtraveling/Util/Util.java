@@ -1,6 +1,7 @@
 package dev.wildtraveling.Util;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.ConnectivityManager;
@@ -207,10 +208,35 @@ public final class Util {
         return strAdd;
     }
 
+    public static String getCountryCode(double latitude, double longitude, Context context){
+        String strAdd = "";
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+            if (addresses != null) {
+                Address returnedAddress = addresses.get(0);
+                strAdd = returnedAddress.getCountryCode();
+                System.out.println("codi del pais: "+strAdd);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return strAdd;
+    }
+
 
     public static String getMonthName(String month) {
         int m = Integer.parseInt(month);
         String[] months = {"Jan", "Feb", "Mar", "Apl", "May", "Jun", "Jul", "Aug", "Sep", "Oct","Nov","Dec"};
         return months[m];
+    }
+
+    public static Integer getHalfScreenWidht(Point size){
+        int screenWidth = size.x;
+        int screenHeight = size.y;
+        int halfScreenWidth = (int)(screenWidth *0.5);
+        int quarterScreenWidth = (int)(halfScreenWidth * 0.5);
+
+        return halfScreenWidth;
     }
 }

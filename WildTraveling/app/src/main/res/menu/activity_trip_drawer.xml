@@ -18,6 +18,10 @@
             android:id="@+id/meteo"
             android:icon="@drawable/sun_cloud"
             android:title="Meteo" />
+        <item
+            android:id="@+id/emergency"
+            android:icon="@drawable/emergency"
+            android:title="Emergencies" />
 
     </group>
 
