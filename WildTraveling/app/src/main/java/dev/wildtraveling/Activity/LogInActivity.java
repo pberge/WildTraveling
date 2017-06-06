@@ -17,6 +17,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import dev.wildtraveling.Domain.RegisteredTraveler;
 import dev.wildtraveling.R;
 import dev.wildtraveling.Service.ExpenseService;
+import dev.wildtraveling.Service.NoteService;
 import dev.wildtraveling.Service.TravelerService;
 import dev.wildtraveling.Service.TripService;
 import dev.wildtraveling.Util.Repository;
@@ -30,6 +31,7 @@ public class LogInActivity extends AppCompatActivity implements GoogleApiClient.
     private TravelerService travelerService;
     private TripService tripService;
     private ExpenseService expenseService;
+    private NoteService noteService;
     GoogleSignInAccount acct;
     ProgressDialog mProgressDialog;
 
@@ -139,6 +141,7 @@ public class LogInActivity extends AppCompatActivity implements GoogleApiClient.
         this.tripService = ServiceFactory.getTripService(LogInActivity.this);
         this.expenseService = ServiceFactory.getExpenseService(LogInActivity.this);
         this.travelerService = ServiceFactory.getTravelerService(LogInActivity.this);
+        this.noteService = ServiceFactory.getNoteService(LogInActivity.this);
 
 
         ServiceFactory.getTravelerService(this).setOnChangedListener(new Repository.OnChangedListener() {
@@ -159,6 +162,14 @@ public class LogInActivity extends AppCompatActivity implements GoogleApiClient.
                 increaseLoaded(type);
             }
         });
+
+        ServiceFactory.getNoteService(this).setOnChangedListener(new Repository.OnChangedListener() {
+            @Override
+            public void onChanged(EventType type) {
+                increaseLoaded(type);
+            }
+        });
+
     }
 
     private void increaseLoaded(Repository.OnChangedListener.EventType type) {

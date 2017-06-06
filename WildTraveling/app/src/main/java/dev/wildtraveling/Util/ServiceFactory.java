@@ -4,12 +4,14 @@ import android.content.Context;
 
 import dev.wildtraveling.Repository.DebtRepository;
 import dev.wildtraveling.Repository.ExpenseRepository;
+import dev.wildtraveling.Repository.NoteRepository;
 import dev.wildtraveling.Repository.PersonRepository;
 import dev.wildtraveling.Repository.RegisteredTravelerRepository;
 import dev.wildtraveling.Repository.NoUserRepository;
 import dev.wildtraveling.Repository.TripRepository;
 import dev.wildtraveling.Service.ExpenseService;
 import dev.wildtraveling.Service.LocationServiceAdapter;
+import dev.wildtraveling.Service.NoteService;
 import dev.wildtraveling.Service.TravelerService;
 import dev.wildtraveling.Service.TripService;
 
@@ -21,8 +23,9 @@ public final class ServiceFactory {
     private static TripService tripService;
     private static TravelerService travelerService;
     private static ExpenseService expenseService;
+    private static NoteService noteService;
 
-    private static Integer numServices = 3;
+    private static Integer numServices = 4;
     private static LocationServiceAdapter foursquareAPI;
 
     public static TripService getTripService(Context context) {
@@ -51,6 +54,13 @@ public final class ServiceFactory {
             foursquareAPI = new LocationServiceAdapter();
         }
         return foursquareAPI;
+    }
+
+    public static NoteService getNoteService(Context context){
+        if (noteService == null) {
+            noteService = new NoteService(new NoteRepository(context));
+        }
+        return noteService;
     }
 
     public static Integer getServiceCount() {

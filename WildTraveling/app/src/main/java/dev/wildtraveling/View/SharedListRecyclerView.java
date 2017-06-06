@@ -1,7 +1,6 @@
 package dev.wildtraveling.View;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,17 +14,17 @@ import dev.wildtraveling.Domain.Person;
 import dev.wildtraveling.R;
 
 /**
- * Created by pere on 3/30/17.
+ * Created by pere on 6/5/17.
  */
-public class ParticipantsRecyclerView extends RecyclerView.Adapter<ParticipantsRecyclerView.ViewHolder> {
+public class SharedListRecyclerView extends RecyclerView.Adapter<SharedListRecyclerView.ViewHolder> {
 
-    private final List<Person> mValues;
+    private final List<NoUser> mValues;
     private final Context context;
 
     public ViewHolder holder;
 
-    public ParticipantsRecyclerView(Context context,
-                                    List<Person> items) {
+    public SharedListRecyclerView(Context context,
+                                    List<NoUser> items) {
         mValues = items;
         this.context = context;
     }

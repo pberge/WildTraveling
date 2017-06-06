@@ -24,6 +24,8 @@ import dev.wildtraveling.Domain.dayMeteoPrevision;
  */
 public final class Util {
 
+    public static final String EMAIL = "pereberge@gmail.com";
+    public static final String PASSWORD = "eslokete";
     private static Integer loaded = 0;
     private static List<FoursquareVenue> venues = new ArrayList<>();
     private static LatLng currentLocation;

@@ -49,6 +49,7 @@ import java.util.List;
 
 import dev.wildtraveling.Domain.Destination;
 import dev.wildtraveling.Domain.Expense;
+import dev.wildtraveling.Domain.Note;
 import dev.wildtraveling.Domain.Person;
 import dev.wildtraveling.Domain.Trip;
 import dev.wildtraveling.Domain.dayMeteoPrevision;
@@ -57,6 +58,7 @@ import dev.wildtraveling.Service.ExpenseService;
 import dev.wildtraveling.Service.LocationServiceAdapter;
 import dev.wildtraveling.Domain.FoursquareVenue;
 import dev.wildtraveling.Service.MeteoServiceAdapter;
+import dev.wildtraveling.Service.NoteService;
 import dev.wildtraveling.Service.TravelerService;
 import dev.wildtraveling.Service.TripService;
 import dev.wildtraveling.Service.emergencyPhoneAdapter;
@@ -66,6 +68,7 @@ import dev.wildtraveling.Util.Util;
 import dev.wildtraveling.View.DestinationRecyclerView;
 import dev.wildtraveling.View.ExpensesRecyclerView;
 import dev.wildtraveling.View.MeteoRecyclerView;
+import dev.wildtraveling.View.NotesRecyclerView;
 import dev.wildtraveling.View.ParticipantsRecyclerView;
 
 public class getTripActivity extends AppCompatActivity
@@ -103,11 +106,13 @@ public class getTripActivity extends AppCompatActivity
     private TextView meteo_desc;
     private ImageView meteo_icon;
     private TextView meteo_day;
+    private List<Note> notes;
 
     private List<dayMeteoPrevision> meteo;
     private MeteoServiceAdapter meteoAdapter;
     private emergencyPhoneAdapter emergencyAdapter;
     private LocationServiceAdapter foursquareAPI;
+    private NoteService noteService;
     private View searchResultRecyclerView;
     private List<FoursquareVenue> venues = new ArrayList<>();
     private ProgressDialog progressDialog;
@@ -141,6 +146,7 @@ public class getTripActivity extends AppCompatActivity
         travelerService = ServiceFactory.getTravelerService(getApplicationContext());
         expenseService = ServiceFactory.getExpenseService(getApplicationContext());
         foursquareAPI = ServiceFactory.getFoursquareAPI();
+        noteService = ServiceFactory.getNoteService(getApplicationContext());
 
         trip = tripService.get(tripService.getCurrentTrip());
 
@@ -178,13 +184,52 @@ public class getTripActivity extends AppCompatActivity
             navigationView.getMenu().getItem(4).setChecked(true);
             initFragment(R.layout.emergency_layout);
             initializeEmergency();
+        } else if (intent.getStringExtra("FRAGMENT").equals("NOTE")) {
+            navigationView.getMenu().getItem(5).setChecked(true);
+            initFragment(R.layout.note_list_layout);
+            initializeNote();
         }
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    private void initializeNote() {
+        currentFragment = 5;
+        fab.setVisibility(View.VISIBLE);
+        setTitle("Notes");
+
+        notes = noteService.getNotesByTripId(trip.getId());
+
+        View notesRecyclerView = findViewById(R.id.note_recyclerview);
+        ((RecyclerView) notesRecyclerView).setLayoutManager(new LinearLayoutManager(this));
+        NotesRecyclerView recyclerView = new NotesRecyclerView(getApplicationContext(), notes);
+        ((RecyclerView) notesRecyclerView).setAdapter(recyclerView);
+        recyclerView.notifyDataSetChanged();
+        ((RecyclerView) notesRecyclerView).addOnItemTouchListener(new RecyclerItemClickListener(this, (RecyclerView) notesRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Intent intent = new Intent(getApplicationContext(), getNoteActivity.class);
+                intent.putExtra("noteId", notes.get(position).getId());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) { //Delete dialog
+                // ...
+            }
+        }));
+        fab.setImageResource(R.drawable.plus);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), newNoteActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void getMeteo() {
+        currentFragment = 3;
+        fab.setVisibility(View.INVISIBLE);
+        setTitle("Meteo");
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
@@ -267,6 +312,9 @@ public class getTripActivity extends AppCompatActivity
         } else if (id == R.id.emergency) {
             initFragment(R.layout.emergency_layout);
             initializeEmergency();
+        } else if (id == R.id.note){
+            initFragment(R.layout.note_list_layout);
+            initializeNote();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

@@ -22,6 +22,10 @@
             android:id="@+id/emergency"
             android:icon="@drawable/emergency"
             android:title="Emergencies" />
+        <item
+            android:id="@+id/note"
+            android:icon="@drawable/feather"
+            android:title="Notes" />
 
     </group>
 

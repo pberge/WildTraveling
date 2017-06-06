@@ -15,8 +15,6 @@ public class TripService extends Service<Trip> {
     private int loaded=0;
     private int loadNeed=1;
     private String currentTrip;
-    //private final Repository<PaymentMenuAnswer>answerRepository;
-    //private final Repository<User>userRepository;
 
     public TripService(Repository<Trip>repository){
         super(repository);
