@@ -97,13 +97,13 @@ public class newExpenseActivitiy extends AppCompatActivity {
             expenseService.save(d);
         }
 
-        Intent intent = new Intent(getApplicationContext(), expenseListActivity.class);
-        startActivity(intent);
+        onBackPressed();
     }
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(getApplicationContext(), expenseListActivity.class);
+        Intent intent = new Intent(getApplicationContext(), getTripActivity.class);
+        intent.putExtra("FRAGMENT","EXPENSE");
         startActivity(intent);
     }
 }

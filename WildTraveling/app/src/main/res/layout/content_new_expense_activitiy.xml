@@ -21,6 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/newExpenseAmount"
+            android:inputType="numberDecimal"
             android:hint="3.00 €"
             android:gravity="center_horizontal"/>
         <EditText

@@ -32,7 +32,7 @@
                     android:src="@drawable/delete"
                     android:background="@android:color/transparent"
                     android:id="@+id/deleteExpense"
-                    android:tint="@color/colorAccentTransparent"/>
+                    android:tint="@color/colorAccent"/>
                 <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -42,7 +42,7 @@
                     android:layout_gravity="center_vertical"
                     android:background="@android:color/transparent"
                     android:id="@+id/editExpense"
-                    android:tint="@color/colorAccentTransparent"
+                    android:tint="@color/colorAccent"
                     android:paddingLeft="10dp"/>
             </LinearLayout>
         </android.support.v7.widget.Toolbar>

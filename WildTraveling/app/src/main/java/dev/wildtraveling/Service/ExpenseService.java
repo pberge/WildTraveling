@@ -120,4 +120,13 @@ public ExpenseService(Repository<Expense>repository, Repository<Debt> debtReposi
             }
         }
     }
+
+    public void deleteExpensesByTrip(String currentTrip) {
+        for(Expense e: repository.all()){
+            if (e.getTripId().equals(currentTrip)){
+                deleteDebtsFromExpense(e.getId());
+                repository.delete(e.getId());
+            }
+        }
+    }
 }

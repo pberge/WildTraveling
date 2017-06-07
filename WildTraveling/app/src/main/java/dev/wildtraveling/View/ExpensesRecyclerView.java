@@ -65,7 +65,6 @@ public class ExpensesRecyclerView extends RecyclerView.Adapter<ExpensesRecyclerV
             motive = (TextView) view.findViewById(R.id.expenseMotive);
             localization = (TextView) view.findViewById(R.id.expenseLocalization);
             date = (TextView) view.findViewById(R.id.expenseDate);
-            delete = (ImageButton) view.findViewById(R.id.expenseDelete);
         }
 
         @Override

@@ -34,6 +34,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:10.2.1'
     compile 'com.jakewharton:butterknife:6.1.0'
     compile 'com.thebluealliance:spectrum:0.7.1'
+    compile 'com.squareup.picasso:picasso:2.5.0'
     compile files('libs/activation.jar')
     compile files('libs/additionnal.jar')
     compile files('libs/mail.jar')

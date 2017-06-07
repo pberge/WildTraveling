@@ -79,7 +79,7 @@
                     android:layout_gravity="center_vertical"
                     android:text="10/02/2017"
                     android:id="@+id/expenseDate"
-                    android:paddingRight="@dimen/activity_horizontal_margin"
+                    android:paddingTop="6dp"
                     android:gravity="center" />
             </LinearLayout>
         </LinearLayout>

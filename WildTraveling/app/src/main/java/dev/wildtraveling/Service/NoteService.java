@@ -63,4 +63,12 @@ public class NoteService extends Service<Note> {
             }
         }
     }
+
+    public void deleteNotesByTripId(String currentTrip) {
+        for (Note d:repository.all()){
+            if(d.getTripId().equals(currentTrip)){
+                repository.delete(d.getId());
+            }
+        }
+    }
 }

@@ -61,7 +61,7 @@
                 android:gravity="top"
                 android:layout_marginTop="10dp"
                 android:inputType="text|textMultiLine"
-                android:hint="I fall in love besides the Eiffel..."/>
+                android:hint="I fell in love besides the Eiffel..."/>
         </RelativeLayout>
     </android.support.v7.widget.CardView>
 

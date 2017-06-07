@@ -7,7 +7,8 @@
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".Activity.expenseListActivity"
-    tools:showIn="@layout/activity_list_expense">
+    tools:showIn="@layout/activity_list_expense"
+    android:paddingBottom="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,11 +33,17 @@
 
     </LinearLayout>
 
-    <android.support.v7.widget.RecyclerView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/expensesRecyclerView">
+        android:orientation="horizontal"
+        android:background="@color/backgroundList">
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/expensesRecyclerView">
+        </android.support.v7.widget.RecyclerView>
+    </LinearLayout>
 
-    </android.support.v7.widget.RecyclerView>
 
 </LinearLayout>

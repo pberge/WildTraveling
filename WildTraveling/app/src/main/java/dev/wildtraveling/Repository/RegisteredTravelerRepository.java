@@ -1,6 +1,7 @@
 package dev.wildtraveling.Repository;
 
 import android.content.Context;
+import android.net.Uri;
 
 import com.google.firebase.database.DataSnapshot;
 

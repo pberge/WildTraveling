@@ -1,6 +1,7 @@
 package dev.wildtraveling.Activity;
 
 import android.Manifest;
+import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -47,6 +48,7 @@ import dev.wildtraveling.Domain.FoursquareVenue;
 import dev.wildtraveling.Util.Util;
 
 public class mapsActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
+
     protected GoogleMap map;
     protected LatLng start;
     protected LatLng end;
@@ -69,9 +71,12 @@ public class mapsActivity extends AppCompatActivity implements GoogleApiClient.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        /*Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Route");
-        //setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);
+*/
+        android.support.v7.app.ActionBar a = getSupportActionBar();
+        a.setTitle("Route");
 
         polylines = new ArrayList<>();
         mGoogleApiClient = new GoogleApiClient.Builder(this)

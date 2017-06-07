@@ -54,4 +54,8 @@ public class TripService extends Service<Trip> {
         }
         return null;
     }
+
+    public void deleteTrip(String currentTrip) {
+        delete(currentTrip);
+    }
 }

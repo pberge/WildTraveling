@@ -70,6 +70,7 @@ public class expenseListActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), getExpenseActivity.class);
                 intent.putExtra("expenseId",expenses.get(position).getId());
                 startActivity(intent);
+                finish();
             }
 
             @Override
@@ -81,5 +82,8 @@ public class expenseListActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        Intent intent = new Intent(getApplicationContext(), getTripActivity.class);
+        intent.putExtra("FRAGMENT","EXPENSE");
+        startActivity(intent);
     }
 }

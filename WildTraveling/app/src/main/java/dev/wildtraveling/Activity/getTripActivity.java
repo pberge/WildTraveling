@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.location.Location;
 import android.media.Image;
@@ -13,6 +14,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -37,12 +39,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
+import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -51,6 +58,7 @@ import dev.wildtraveling.Domain.Destination;
 import dev.wildtraveling.Domain.Expense;
 import dev.wildtraveling.Domain.Note;
 import dev.wildtraveling.Domain.Person;
+import dev.wildtraveling.Domain.RegisteredTraveler;
 import dev.wildtraveling.Domain.Trip;
 import dev.wildtraveling.Domain.dayMeteoPrevision;
 import dev.wildtraveling.R;
@@ -70,6 +78,9 @@ import dev.wildtraveling.View.ExpensesRecyclerView;
 import dev.wildtraveling.View.MeteoRecyclerView;
 import dev.wildtraveling.View.NotesRecyclerView;
 import dev.wildtraveling.View.ParticipantsRecyclerView;
+
+import static dev.wildtraveling.R.id.destination;
+import static dev.wildtraveling.R.id.nav_imageView;
 
 public class getTripActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
@@ -149,6 +160,7 @@ public class getTripActivity extends AppCompatActivity
         noteService = ServiceFactory.getNoteService(getApplicationContext());
 
         trip = tripService.get(tripService.getCurrentTrip());
+        RegisteredTraveler user = travelerService.getUserById(travelerService.getCurrentUser());
 
         intent = getIntent();
 
@@ -163,6 +175,18 @@ public class getTripActivity extends AppCompatActivity
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        View hView =  navigationView.getHeaderView(0);
+
+        TextView nav_name = (TextView)hView.findViewById(R.id.nav_header_title);
+        nav_name.setText(user.getName());
+        TextView nav_email = (TextView)hView.findViewById(R.id.nav_header_subtitle);
+        nav_email.setText(user.getEmail());
+        ImageView nav_photo = (ImageView) hView.findViewById(R.id.nav_imageView);
+
+        System.out.println("user photo url: "+user.getPhotoUrl());
+        Picasso.with(this).load(user.getPhotoUrl()).into(nav_photo);
+
+
 
         if (intent.getStringExtra("FRAGMENT").equals("INFO")) {
             navigationView.getMenu().getItem(0).setChecked(true);
@@ -273,7 +297,7 @@ public class getTripActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.trip, menu);
+        getMenuInflater().inflate(R.menu.menu_get_trip, menu);
         return true;
     }
 
@@ -285,11 +309,35 @@ public class getTripActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+        if (id == R.id.deleteTrip) {
+            deleteDialog().show();
+            return true;        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private AlertDialog deleteDialog() {
+        AlertDialog dialog =new AlertDialog.Builder(this)
+                .setTitle("Delete Trip")
+                .setMessage("Do you want to delete this trip?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        noteService.deleteNotesByTripId(tripService.getCurrentTrip());
+                        expenseService.deleteExpensesByTrip(tripService.getCurrentTrip());
+                        tripService.deleteTrip(tripService.getCurrentTrip());
+                        Intent intent = new Intent(getTripActivity.this, tripsListActivity.class);
+                        tripService.setCurrentTrip("");
+                        startActivity(intent);
+                        getTripActivity.this.finish();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+        return dialog;
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -547,6 +595,7 @@ public class getTripActivity extends AppCompatActivity
                 } else {
                     progressDialog.show();
                     if (searchLocation.getText().toString().equals("")) {
+                        System.out.println("current coord: "+currentCoord.toString());
                         if (!currentCoord.equals(null)) {
                             Util.setCurrentRouteStart(currentCoord);
                         }
@@ -559,10 +608,9 @@ public class getTripActivity extends AppCompatActivity
                                 @Override
                                 public void run() {
                                     try {
-                                        System.out.println("ESPEREM A QUE venues tingui algo");
                                         venues = new ArrayList<>();
                                         Util.setNewVenues();
-                                        System.out.println("mida venues abans bucle: " + venues.size());
+                                        Util.setFinishSearch(false);
                                         while (Util.getVenues().size() == 0 && !Util.getFinishSearch()) {
                                             Thread.sleep(1000);
                                             venues = Util.getVenues();
@@ -594,12 +642,9 @@ public class getTripActivity extends AppCompatActivity
                                 @Override
                                 public void run() {
                                     try {
-                                        System.out.println("ESPEREM A QUE venues tingui algo");
                                         venues = new ArrayList<>();
                                         Util.setNewVenues();
-                                        System.out.println("mida venues abans bucle: " + venues.size());
                                         while (Util.getVenues().size() == 0 && Util.getFinishSearch()) {
-                                            System.out.println("bucle: " + Util.getVenues().size());
                                             Thread.sleep(1000);
                                             venues = Util.getVenues();
                                         }
@@ -773,6 +818,7 @@ public class getTripActivity extends AppCompatActivity
     }
 
     private void initializeGeneralInfo() {
+        setTitle("Trip");
         currentFragment = 0;
         fab.setVisibility(View.INVISIBLE);
         initDate = (TextView) findViewById(R.id.getTripInitDate);
@@ -781,8 +827,10 @@ public class getTripActivity extends AppCompatActivity
         initDate.setText(Util.obtainDateString(trip.getInitDate()));
         finalDate.setText(Util.obtainDateString(trip.getFinalDate()));
 
+        TextView desti = (TextView) findViewById(destination);
+
         //Crea llista de destins (provisional)
-        List<Destination> destinations = new ArrayList<>();
+        /*List<Destination> destinations = new ArrayList<>();
         Destination d = new Destination();
         d.setName(trip.getDestination());
         destinations.add(d);
@@ -791,7 +839,9 @@ public class getTripActivity extends AppCompatActivity
         ((RecyclerView) destinationRecyclerView).setLayoutManager(new LinearLayoutManager(this));
         DestinationRecyclerView recyclerView = new DestinationRecyclerView(getApplicationContext(), destinations);
         recyclerView.notifyDataSetChanged();
-        ((RecyclerView) destinationRecyclerView).setAdapter(recyclerView);
+        ((RecyclerView) destinationRecyclerView).setAdapter(recyclerView);*/
+
+        desti.setText(trip.getDestination());
 
         List<Person> travelers = new ArrayList<>();
         for (String id : trip.getParticipants()) {

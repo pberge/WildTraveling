@@ -126,6 +126,7 @@ public class LogInActivity extends AppCompatActivity implements GoogleApiClient.
             traveler = new RegisteredTraveler();
             traveler.setName(acct.getDisplayName());
             traveler.setEmail(acct.getEmail());
+            //traveler.setPhotoUrl(acct.getPhotoUrl());
             travelerService.save(traveler);
             travelerService.setCurrentUser(traveler.getId());
         }

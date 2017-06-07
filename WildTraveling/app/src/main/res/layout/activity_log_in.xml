@@ -4,15 +4,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/logInLayout"
-
     tools:context="dev.wildtraveling.Activity.LogInActivity"
     android:gravity="center"
     android:background="@color/colorPrimary">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/logo_login"
+        android:scaleX="4"
+        android:scaleY="4"
+        android:id="@+id/logo"/>
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="100dp" />
 
     <com.google.android.gms.common.SignInButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/logInGoogle">
     </com.google.android.gms.common.SignInButton>
+    </LinearLayout>
+
 
 </RelativeLayout>

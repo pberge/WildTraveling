@@ -66,6 +66,7 @@ public class newTripActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_trip);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("New trip");
         setSupportActionBar(toolbar);
 
         tripService = ServiceFactory.getTripService(getApplicationContext());
@@ -160,7 +161,8 @@ public class newTripActivity extends AppCompatActivity {
 
             n.setText("");
             e.setText("");
-            if(newTraveler){
+
+            if(newTraveler) {
                 travelerService.save(traveler);
             }
             participantsId.add(traveler.getId());

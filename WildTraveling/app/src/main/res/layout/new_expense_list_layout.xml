@@ -36,6 +36,7 @@
             android:layout_width="120dp"
             android:layout_height="match_parent"
             android:hint="0.00"
+            android:inputType="numberDecimal"
             android:textAlignment="center"
             android:id="@+id/newExpenseDebtAmount"/>
 
