@@ -64,7 +64,6 @@ public class LocationServiceAdapter implements FoursquareAPI {
         this.currentSearch = category;
         new FoursquareCall().execute();
         Util.setVenues(venueList);
-        System.out.println("Mida venue list despres de getVenuesCategory: " + venueList.size());
         Util.setFinishSearch(true);
         return venueList;
     }
@@ -94,8 +93,6 @@ public class LocationServiceAdapter implements FoursquareAPI {
     }
 
     private class HospitalCall extends AsyncTask<View, Void, String> {
-
-
         @Override
         protected String doInBackground(View... urls) {
             // make Call to the url
@@ -108,22 +105,14 @@ public class LocationServiceAdapter implements FoursquareAPI {
                     "&oauth_token=DBRXKVUS1HG52CRZK5ERIKQ42BP4UPL11Q2N0PQUCCZZ3A4R");
             return "";
         }
-
         @Override
-        protected void onPreExecute() {
-            // we can start a progress bar here
-        }
+        protected void onPreExecute() {}
 
         @Override
         protected void onPostExecute(String result) {
             if (temp == null) {
-                // we have an error to the call
-                // we can also stop the progress bar
                 finish = true;
-                System.out.println("TEMP ES NULL");
             } else {
-                // all things went right
-                // parseFoursquare venues search result
                 venueList = parseFoursquareSearch(temp);
                 Util.setVenues(venueList);
                 Util.setFinishSearch(true);
@@ -133,8 +122,6 @@ public class LocationServiceAdapter implements FoursquareAPI {
     }
 
     private class FoursquareCall extends AsyncTask<View, Void, String> {
-
-
         @Override
         protected String doInBackground(View... urls) {
             // make Call to the url
@@ -247,7 +234,6 @@ public class LocationServiceAdapter implements FoursquareAPI {
             e.printStackTrace();
             return new ArrayList<FoursquareVenue>();
         }
-        System.out.println("Mida hospital list despres de getVenuesCategory: "+temp.size());
 
         return temp;
     }

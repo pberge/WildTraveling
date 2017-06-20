@@ -27,15 +27,13 @@ public abstract class FirebaseRepository<T extends Entity> extends Repository<T>
     protected FirebaseDatabase firebase;
     protected DatabaseReference database;
 
-    /**
-     * Constructor class
-     */
+
     public FirebaseRepository(Context context) {
         firebase = FirebaseDatabase.getInstance(FIREBASE_URI);
         map = new LinkedHashMap<>();
         database = firebase.getReference().child(getObjectReference());
 
-        database.addValueEventListener(new ValueEventListener() { //realtime database
+        database.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
@@ -56,6 +54,9 @@ public abstract class FirebaseRepository<T extends Entity> extends Repository<T>
      * @param item Object that you want to insert.
      */
     @Override
+
+
+
     public T insert(T item) {
         DatabaseReference ref = database.push();
         ref.setValue(item);

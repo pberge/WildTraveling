@@ -21,6 +21,9 @@ public class ExpenseRepository extends FirebaseRepository<Expense> {
     }
 
     @Override
+
+
+
     protected Expense convert(DataSnapshot data) {
         if (data == null) return null;
 

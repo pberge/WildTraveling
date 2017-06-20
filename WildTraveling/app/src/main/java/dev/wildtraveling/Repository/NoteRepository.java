@@ -22,6 +22,8 @@ public class NoteRepository extends FirebaseRepository<Note> {
     }
 
     @Override
+
+
     protected Note convert(DataSnapshot data) {
         if (data == null) return null;
 

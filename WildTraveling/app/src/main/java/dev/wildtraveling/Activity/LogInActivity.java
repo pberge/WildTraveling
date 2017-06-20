@@ -41,20 +41,15 @@ public class LogInActivity extends AppCompatActivity implements GoogleApiClient.
         setContentView(R.layout.activity_log_in);
 
 
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
 
-        // Build a GoogleApiClient with access to the Google Sign-In API and the
-        // options specified by gso.
         mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .enableAutoManage(this, this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
-        // Set the dimensions of the sign-in button.
         SignInButton signInButton = (SignInButton) findViewById(R.id.logInGoogle);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
         signInButton.setOnClickListener(new View.OnClickListener() {
@@ -80,7 +75,6 @@ public class LogInActivity extends AppCompatActivity implements GoogleApiClient.
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == GOOGLE) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleSignInResult(result);
@@ -89,7 +83,6 @@ public class LogInActivity extends AppCompatActivity implements GoogleApiClient.
 
     private void handleSignInResult(GoogleSignInResult result) {
         if (result.isSuccess()) {
-            // Signed in successfully
             acct = result.getSignInAccount();
             updateUI(true);
             new Thread() {
@@ -126,7 +119,6 @@ public class LogInActivity extends AppCompatActivity implements GoogleApiClient.
             traveler = new RegisteredTraveler();
             traveler.setName(acct.getDisplayName());
             traveler.setEmail(acct.getEmail());
-            //traveler.setPhotoUrl(acct.getPhotoUrl());
             travelerService.save(traveler);
             travelerService.setCurrentUser(traveler.getId());
         }
@@ -189,9 +181,5 @@ public class LogInActivity extends AppCompatActivity implements GoogleApiClient.
             mProgressDialog.show();
     }
 
-    private void hideProgressDialog() {
-        if (mProgressDialog != null && mProgressDialog.isShowing()) {
-            mProgressDialog.hide();
-        }
-    }
+
 }

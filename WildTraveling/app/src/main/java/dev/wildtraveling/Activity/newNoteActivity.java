@@ -23,6 +23,7 @@ import java.util.List;
 
 import dev.wildtraveling.Domain.NoUser;
 import dev.wildtraveling.Domain.Note;
+import dev.wildtraveling.Domain.RegisteredTraveler;
 import dev.wildtraveling.R;
 import dev.wildtraveling.Service.NoteService;
 import dev.wildtraveling.Service.TravelerService;
@@ -159,9 +160,13 @@ public class newNoteActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    RegisteredTraveler currentUser = travelerService.getUserById(travelerService.getCurrentUser());
+
     private void sendEmail() {
         for(NoUser u: triptravelers) {
-            MailSender sm = new MailSender(this, "alsumo95@gmail.com", "WildTraveling note from "+travelerService.getUserById(travelerService.getCurrentUser()).getName(),title.getText().toString()+"\n\n"+text.getText().toString());
+            MailSender sm = new MailSender(this, u.getEmail(),
+                    "WildTraveling note from "+ currentUser.getName(),
+                    title.getText().toString()+"\n\n"+text.getText().toString());
             sm.execute();
         }
     }

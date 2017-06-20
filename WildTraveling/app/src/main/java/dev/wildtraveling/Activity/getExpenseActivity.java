@@ -46,9 +46,12 @@ public class getExpenseActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         tripService = ServiceFactory.getTripService(this);
+
+        String expenseId = intent.getStringExtra("expenseId");
+
         expenseService = ServiceFactory.getExpenseService(this);
 
-        expense = expenseService.getExpenseById(intent.getStringExtra("expenseId"));
+        expense = expenseService.getExpenseById(expenseId);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(expense.getItem());

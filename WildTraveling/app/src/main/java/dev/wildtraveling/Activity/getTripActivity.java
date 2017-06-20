@@ -453,10 +453,8 @@ public class getTripActivity extends AppCompatActivity
             @Override
             public void run() {
                 try {
-                    System.out.println("ESPEREM A QUE venues tingui algo");
                     venues = new ArrayList<>();
                     Util.setNewVenues();
-                    System.out.println("mida venues abans bucle: " + venues.size());
                     while (Util.getVenues().size() == 0 && !Util.getFinishSearch()) {
                         Thread.sleep(1000);
                         venues = Util.getVenues();
@@ -464,10 +462,8 @@ public class getTripActivity extends AppCompatActivity
                 } catch (InterruptedException ex) {
                     // Catching exception
                 } finally {
-                    System.out.println("mida venues finally: " + venues.size());
                     if(Util.getVenues().size()>0){
                         FoursquareVenue v = getNearestHospital();
-                        System.out.println("hospital name: "+v.getName());
                         Util.setCurrentVenue(v);
                         activityMaps();
                         progressDialog.dismiss();

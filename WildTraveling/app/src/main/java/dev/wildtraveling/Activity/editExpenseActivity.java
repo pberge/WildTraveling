@@ -56,6 +56,7 @@ public class editExpenseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_expense);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Edit expense");
         setSupportActionBar(toolbar);
 
         tripService = ServiceFactory.getTripService(this);

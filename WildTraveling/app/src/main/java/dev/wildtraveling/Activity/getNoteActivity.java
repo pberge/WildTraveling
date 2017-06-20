@@ -60,7 +60,7 @@ public class getNoteActivity extends AppCompatActivity {
         noteService = ServiceFactory.getNoteService(getApplicationContext());
         travelerService = ServiceFactory.getTravelerService(getApplicationContext());
 
-        title = (TextView) findViewById(R.id.noteText);
+        title = (TextView) findViewById(R.id.noteTitle);
         text = (TextView) findViewById(R.id.noteText);
         palette = (ImageButton) findViewById(R.id.changeNoteColor);
         deleteNote = (ImageButton) findViewById(R.id.deleteNote);
